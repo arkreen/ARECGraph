@@ -1,0 +1,126 @@
+specVersion: 0.0.7
+description: Subgraph for AREC ecosystem 
+repository: https://github.com/arkreen/ARECPortGraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: ArkreenRECIssuance
+    network: matic
+    source:
+      address: '0x954585adF9425F66a0a2FD8e10682EB7c4F1f1fD'
+      abi: ArkreenRECIssuance
+      startBlock: 40626128
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/ArkreenRECIssuance.ts
+      entities:
+        - ARECOverview
+        - ARTOverview
+        - ARECNFT
+        - AREC_ASSET
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ArkreenRegistry
+          file: ./abis/ArkreenRegistry.json
+        - name: ArkreenRECIssuance
+          file: ./abis/ArkreenRECIssuance.json
+      eventHandlers:
+        - event: RECRequested(address,uint256)
+          handler: handleARECMint
+        - event: ESGBatchMinted(address,uint256)
+          handler: handleESGBatchMinted
+        - event: RECCertified(address,uint256)
+          handler: handleRECCertified
+        - event: RedeemFinished(address,uint256,uint256)
+          handler: handleRedeemFinished 
+        - event: RECLiquidized(address,uint256,uint256)
+          handler: handleRECLiquidized
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+  - kind: ethereum/contract
+    name: ArkreenBadge
+    network: matic
+    source:
+      address: '0x1e5132495cdaBac628aB9F5c306722e33f69aa24'
+      abi: ArkreenBadge
+      startBlock: 40629078 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/ArkreenBadge.ts
+      entities:
+        - ARECOverview
+        - ARTOverview
+        - ARECNFT
+        - AREC_ASSET
+        - Token
+        - ARECBadge
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ArkreenBadge
+          file: ./abis/ArkreenBadge.json
+      eventHandlers:
+        - event: OffsetCertificateMinted(uint256)
+          handler: handleOffsetCertificateMinted
+        - event: OffsetCertificateUpdated(uint256)
+          handler: handleOffsetCertificateUpdated   
+        - event: OffsetAttached(uint256)
+          handler: handleOffsetAttached 
+  - kind: ethereum/contract
+    name: GreenBTC
+    network: matic
+    source:
+      address: '0x1e5132495cdaBac628aB9F5c306722e33f69aa24'
+      abi: GreenBTC
+      startBlock: 49211609 
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/GreenBTC.ts
+      entities:
+        - GreenBTC
+        - GreenBTCBlock
+      abis:
+        - name: GreenBTC
+          file: ./abis/GreenBTC.json
+      eventHandlers:
+        - event: GreenBitCoin(uint256,uint256,address,uint8)
+          handler: handleGreenBitCoin
+        - event: OpenBox(address,uint256,uint256)
+          handler: handleOpenBox
+        - event: RevealBoxes(uint256[],bool[])
+          handler: handleRevealBoxes                 
+templates:
+  - kind: ethereum/contract
+    name: ArkreenRECToken
+    network: matic
+    source:
+      abi: ArkreenRECToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      file: ./src/mappings/ArkreenRECToken.ts
+      entities:
+        - ARECOverview
+        - ARTOverview
+        - ARECNFT
+        - AREC_ASSET
+        - Token
+      abis:
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ArkreenRECToken
+          file: ./abis/ArkreenRECToken.json
+      eventHandlers:
+        - event: OffsetFinished(indexed address,uint256,uint256)
+          handler: handleOffsetFinished
+          

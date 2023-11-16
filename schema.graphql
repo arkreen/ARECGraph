@@ -1,0 +1,108 @@
+type ARECOverview @entity {
+  id:                         ID!
+  numARECNFTMinted:           Int!
+  numARECNFTCertified:        Int!
+  numARECNFTRedeemed:         Int!
+  numARECNFTLiquidized:       Int!
+  amountARECNFTMinted:        BigInt!
+  amountARECNFTCertified:     BigInt!
+  amountARECNFTRedeemed:      BigInt!
+  amountARECNFTLiquidized:    BigInt!
+  amountARECOffset:           BigInt!
+  ARTList:                    [ARTOverview!]!
+}
+
+type ARTOverview @entity {
+  id:                         ID!
+  assetType:                  AREC_ASSET!
+  numNFTMinted:               Int!
+  numNFTCertified:            Int!
+  numNFTRedeemed:             Int!
+  numNFTLiquidized:           Int!
+  amountNFTMinted:            BigInt!
+  amountNFTCertified:         BigInt!
+  amountNFTRedeemed:          BigInt!
+  amountNFTLiquidized:        BigInt!
+  amountARTOffset:            BigInt!
+}
+
+type ARECNFT @entity {
+  id:                         ID!
+  hashTx:                     Bytes!
+  artInfo:                    ARTOverview!
+  timeMinted:                 Int!
+  timeCertified:              Int!
+  timeRedeemed:               Int!
+  timeLiquidized:             Int!
+  amountREC:                  BigInt!
+  amountRECRetired:           BigInt!
+  owner:                      Bytes!
+  serialNumber:               String!
+  startTime:                  Int!
+  endTime:                    Int!
+  region:                     String!
+  cID:                        String!
+  url:                        String!
+  status:                     Int!
+}
+
+type AREC_ASSET @entity {
+  id:               ID!
+  issuer:           Bytes!
+  tokenREC:         ARTOverview!
+  tokenPay:         Bytes!
+  rateToIssue:      BigInt!
+  rateToLiquidize:  BigInt!
+}
+
+type Token @entity {
+  id:                     ID!
+  symbol:                 String!
+  name:                   String!
+  decimals:               BigInt!
+  totalSupply:            BigInt!
+}
+
+type ARECBadge @entity {
+  id:                     ID!
+  offsetEntity:           Bytes!
+  beneficiary:            Bytes!
+  offsetEntityID:         String!
+  beneficiaryID:          String!
+  offsetMessage:          String!
+  creationTime:           Int!
+  offsetTotalAmount:      BigInt!
+  offsetIds:              [BigInt!]!
+}
+
+type ClimateAction @entity {
+  id:                     ID!
+  offsetEntity:           Bytes!
+  issuerREC:              Bytes!
+  amount:                 BigInt!
+  tokenId:                BigInt!
+  createdAt:              Int!
+  bClaimed:               Boolean!
+}
+
+type GreenBTC @entity {
+  id:                     ID!
+  indexLast:              BigInt!
+  bought:                 BigInt!
+  opened:                 BigInt!
+  revealed:               BigInt!
+  won:                    BigInt!
+  amountEnergy:           BigInt!
+}
+
+type GreenBTCBlock @entity {
+  id:                   ID!
+  heightBTC:            BigInt!
+  amountEnergy:         BigInt!
+  indexBuy:             BigInt!
+  openBlockHeight:      BigInt!
+  owner:                Bytes!
+  greenType:            Int!
+  seed:                 BigInt!
+  status:               Int!
+}
