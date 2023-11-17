@@ -121,7 +121,6 @@ export function handleRECRequested(event: RECRequested): void {
     arecOverview.save()
 
     ArkreenRECTokenTemplate.create(Address.fromString(ADDRESS_ART))
-
   }
 
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
@@ -349,7 +348,14 @@ export function handleRedeemFinished(event: RedeemFinished): void {
   climateAction.offsetEntity = actionInfo.offsetEntity
   climateAction.issuerREC = actionInfo.issuerREC
   climateAction.amount = actionInfo.amount
-  climateAction.retiredtokenId = actionInfo.tokenId.toHexString()
+  climateAction.actionType = 'Redeem'
+  // climateAction.arecNFTRetired = "AREC_NFT_" + actionInfo.tokenId.toString().padStart(6,'0')  // 2msb Flag of TokenId should be 00
+
+  log.warning("BBBB handleRedeemFinished: {}, {}", [actionInfo.tokenId.toString(), actionInfo.tokenId.toHexString()])
+
+  let areNFT = ARECNFT.load("AREC_NFT_" + actionInfo.tokenId.toString().padStart(6,'0'))!
+  climateAction.arecNFTRetired = areNFT.id
+
   climateAction.createdAt = actionInfo.createdAt.toI32()
   climateAction.bClaimed = actionInfo.bClaimed
   climateAction.save()

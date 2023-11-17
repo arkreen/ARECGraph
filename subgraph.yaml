@@ -122,6 +122,8 @@ templates:
       abis:
         - name: ERC20
           file: ./abis/ERC20.json
+        - name: ArkreenBadge
+          file: ./abis/ArkreenBadge.json          
         - name: ArkreenRECToken
           file: ./abis/ArkreenRECToken.json
       eventHandlers:

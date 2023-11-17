@@ -34,8 +34,8 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   greenBTCBlock.openBlockHeight = ZERO_BI
   greenBTCBlock.owner = event.params.minter
   greenBTCBlock.greenType = event.params.greenType
-  greenBTCBlock.seed = ZERO_BI
-  greenBTCBlock.status = 1                // sold
+  greenBTCBlock.seed = ''
+  greenBTCBlock.status = "Sold"                // sold
   greenBTCBlock.save()
 }
 
@@ -45,7 +45,7 @@ export function handleOpenBox(event: OpenBox): void {
   let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.tokenID.toString().padStart(8,'0'))!
   greenBTCBlock.opener = event.params.opener
   greenBTCBlock.openBlockHeight = event.params.blockNumber
-  greenBTCBlock.status = 2              // opened
+  greenBTCBlock.status = "Opened"              // opened
   greenBTCBlock.save()
 
   let greenBTC = GreenBTC.load("GREEN_BTC")!
@@ -67,8 +67,8 @@ export function handleRevealBoxes(event: RevealBoxes): void {
     let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
     let dataNFT = greenBTCContract.dataNFT(revealList[index])
 
-    greenBTCBlock.seed = dataNFT.value5                       // retrieve seed
-    greenBTCBlock.status = wonList[index] ? 6 : 3             // 3: revealed, but un-won;  6: won
+    greenBTCBlock.seed = dataNFT.value5.toHexString()                         // retrieve seed
+    greenBTCBlock.status = wonList[index] ? "Lucky" : "Revealed"              
     greenBTCBlock.save() 
 
     if (wonList[index]) greenBTC.won = greenBTC.won.plus(ONE_BI)

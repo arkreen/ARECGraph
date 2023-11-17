@@ -1,10 +1,13 @@
 /* eslint-disable prefer-const */
-import { Address } from '@graphprotocol/graph-ts'
-import { ARECOverview,  ARTOverview, Token, ClimateAction } from '../types/schema'
+import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
+import { ARECOverview,  ARTOverview, Token, ClimateAction, OffsetDetail, ARECNFT } from '../types/schema'
 import { OffsetFinished, Transfer } from '../types/templates/ArkreenRECToken/ArkreenRECToken'
-import { ArkreenBadge } from '../types/ArkreenRECIssuance/ArkreenBadge'
+import { ArkreenBadge } from '../types/templates/ArkreenRECToken/ArkreenBadge'
 
 import { ADDRESS_ZERO, ADDRESS_AREC_BADGE } from './ArkreenRECIssuance'
+
+export let FLAG_REDEEM_MULTI      = BigInt.fromUnsignedBytes(Bytes.fromHexString('0xc000000000000000'))
+export let FLAG_REDEEM_MULTI_MASK = BigInt.fromUnsignedBytes(Bytes.fromHexString('0x3fffffffffffffff'))
 
 // event OffsetFinished(address indexed offsetEntity, uint256 amount, uint256 offsetId)
 export function handleOffsetFinished(event: OffsetFinished): void {
@@ -20,7 +23,41 @@ export function handleOffsetFinished(event: OffsetFinished): void {
   climateAction.offsetEntity = actionInfo.offsetEntity
   climateAction.issuerREC = actionInfo.issuerREC
   climateAction.amount = actionInfo.amount
-  climateAction.retiredtokenId = actionInfo.tokenId.toHexString()
+  
+  log.warning("handleOffsetFinished: XXX, {}, {}", [FLAG_REDEEM_MULTI.toHexString(), FLAG_REDEEM_MULTI_MASK.toHexString()])
+
+  let offsetDetailId = actionInfo.tokenId.bitAnd(FLAG_REDEEM_MULTI_MASK)
+  log.warning("handleOffsetFinished: {}, {}", [actionInfo.tokenId.toHexString(), offsetDetailId.toHexString()])
+
+  if (actionInfo.tokenId.bitAnd(FLAG_REDEEM_MULTI) == FLAG_REDEEM_MULTI) {
+
+    let offsetDetailInfo =  arkreenBadge.getOffsetDetails(offsetDetailId)
+    let offsetLength = offsetDetailInfo.length
+    let allTokenIds = new Array<string>(offsetLength)
+    let allAmounts  = new Array<BigInt>(offsetLength)
+
+    for (let index = 0; index < offsetLength; index++) {
+      allTokenIds[index] = 'AREC_NFT_' + offsetDetailInfo[index].tokenId.toString().padStart(6,'0')
+      allAmounts[index] =  offsetDetailInfo[index].amount
+    }
+
+    let offsetDetail = new OffsetDetail("Offset_Detail_" + offsetDetailId.toString().padStart(6,'0'))
+    offsetDetail.arecNFTList = allTokenIds
+    offsetDetail.amountList = allAmounts
+    offsetDetail.save()
+
+    climateAction.actionType = 'Offset_Multi'
+    climateAction.offsetDetail = offsetDetail.id
+
+  } else {
+    log.warning("AAAA handleOffsetFinished: {}", [offsetDetailId.toHexString()])
+
+    climateAction.actionType = 'Offset'
+    let areNFT = ARECNFT.load("AREC_NFT_" + offsetDetailId.toString().padStart(6,'0'))!
+    climateAction.arecNFTRetired = areNFT.id
+
+  }
+
   climateAction.createdAt = actionInfo.createdAt.toI32()
   climateAction.bClaimed = actionInfo.bClaimed
   climateAction.save()
@@ -31,6 +68,7 @@ export function handleOffsetFinished(event: OffsetFinished): void {
 
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.amountARECOffset = arecOverview.amountARECOffset.plus(event.params.amount)
+  arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
   arecOverview.save()
 }
 

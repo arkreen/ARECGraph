@@ -79,7 +79,7 @@ type ARECBadge @entity {
   offsetMessage:          String!
   creationTime:           Int!
   offsetTotalAmount:      BigInt!
-  offsetIds:              [BigInt!]!
+  offsetActions:          [ClimateAction!]!
 }
 
 type ClimateAction @entity {
@@ -88,9 +88,17 @@ type ClimateAction @entity {
   offsetEntity:           Bytes!
   issuerREC:              Bytes!
   amount:                 BigInt!
-  retiredtokenId:         String!
+  actionType:             String!
+  arecNFTRetired:         ARECNFT
+  offsetDetail:           OffsetDetail
   createdAt:              Int!
   bClaimed:               Boolean!
+}
+
+type OffsetDetail @entity {
+  id:                     ID!
+  arecNFTList:            [ARECNFT!]!
+  amountList:             [BigInt!]!
 }
 
 type GreenBTC @entity {
@@ -112,6 +120,6 @@ type GreenBTCBlock @entity {
   openBlockHeight:      BigInt!
   owner:                Bytes!
   greenType:            Int!
-  seed:                 BigInt!
-  status:               Int!
+  seed:                 String!
+  status:               String!
 }
