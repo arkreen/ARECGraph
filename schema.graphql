@@ -4,11 +4,15 @@ type ARECOverview @entity {
   numARECNFTCertified:        Int!
   numARECNFTRedeemed:         Int!
   numARECNFTLiquidized:       Int!
+  numClimateAction:           Int!
+  numClimateActionClaimed:    Int!
+  numClimateBadge:            Int!
   amountARECNFTMinted:        BigInt!
   amountARECNFTCertified:     BigInt!
   amountARECNFTRedeemed:      BigInt!
   amountARECNFTLiquidized:    BigInt!
   amountARECOffset:           BigInt!
+  amountARECOffsetClaimed:    BigInt!
   ARTList:                    [ARTOverview!]!
 }
 
@@ -19,11 +23,14 @@ type ARTOverview @entity {
   numNFTCertified:            Int!
   numNFTRedeemed:             Int!
   numNFTLiquidized:           Int!
+  numOffsetAction:            Int!
+  numOffsetClaimed:           Int!
   amountNFTMinted:            BigInt!
   amountNFTCertified:         BigInt!
   amountNFTRedeemed:          BigInt!
   amountNFTLiquidized:        BigInt!
   amountARTOffset:            BigInt!
+  amountARTOffsetClaimed:     BigInt!
 }
 
 type ARECNFT @entity {
@@ -77,17 +84,17 @@ type ARECBadge @entity {
 
 type ClimateAction @entity {
   id:                     ID!
+  ARTAsset:               ARTOverview!
   offsetEntity:           Bytes!
   issuerREC:              Bytes!
   amount:                 BigInt!
-  tokenId:                BigInt!
+  retiredtokenId:         String!
   createdAt:              Int!
   bClaimed:               Boolean!
 }
 
 type GreenBTC @entity {
   id:                     ID!
-  indexLast:              BigInt!
   bought:                 BigInt!
   opened:                 BigInt!
   revealed:               BigInt!
@@ -100,6 +107,8 @@ type GreenBTCBlock @entity {
   heightBTC:            BigInt!
   amountEnergy:         BigInt!
   indexBuy:             BigInt!
+  buyTxHash:            Bytes!
+  opener:               Bytes!
   openBlockHeight:      BigInt!
   owner:                Bytes!
   greenType:            Int!

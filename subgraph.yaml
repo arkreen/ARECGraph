@@ -27,11 +27,13 @@ dataSources:
           file: ./abis/ERC20.json
         - name: ArkreenRegistry
           file: ./abis/ArkreenRegistry.json
+        - name: ArkreenBadge
+          file: ./abis/ArkreenBadge.json          
         - name: ArkreenRECIssuance
           file: ./abis/ArkreenRECIssuance.json
       eventHandlers:
         - event: RECRequested(address,uint256)
-          handler: handleARECMint
+          handler: handleRECRequested
         - event: ESGBatchMinted(address,uint256)
           handler: handleESGBatchMinted
         - event: RECCertified(address,uint256)
@@ -48,7 +50,7 @@ dataSources:
     source:
       address: '0x1e5132495cdaBac628aB9F5c306722e33f69aa24'
       abi: ArkreenBadge
-      startBlock: 40629078 
+      startBlock: 41373034 
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -71,13 +73,13 @@ dataSources:
           handler: handleOffsetCertificateMinted
         - event: OffsetCertificateUpdated(uint256)
           handler: handleOffsetCertificateUpdated   
-        - event: OffsetAttached(uint256)
+        - event: OffsetAttached(uint256,uint256[])
           handler: handleOffsetAttached 
   - kind: ethereum/contract
     name: GreenBTC
     network: matic
     source:
-      address: '0x1e5132495cdaBac628aB9F5c306722e33f69aa24'
+      address: '0xDf51F3DCD849f116948A5B23760B1ca0B5425BdE'
       abi: GreenBTC
       startBlock: 49211609 
     mapping:
@@ -97,7 +99,9 @@ dataSources:
         - event: OpenBox(address,uint256,uint256)
           handler: handleOpenBox
         - event: RevealBoxes(uint256[],bool[])
-          handler: handleRevealBoxes                 
+          handler: handleRevealBoxes
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer                           
 templates:
   - kind: ethereum/contract
     name: ArkreenRECToken
@@ -123,4 +127,6 @@ templates:
       eventHandlers:
         - event: OffsetFinished(indexed address,uint256,uint256)
           handler: handleOffsetFinished
-          
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer              
+

@@ -1,9 +1,9 @@
 /* eslint-disable prefer-const */
-import { BigInt, log, Address } from '@graphprotocol/graph-ts'
-import { GreenBitCoin, OpenBox, RevealBoxes, GreenBTC as GreenBTCContract } from '../types/GreenBTC/GreenBTC'
+import { BigInt, Address, Bytes } from '@graphprotocol/graph-ts'
+import { GreenBitCoin, OpenBox, RevealBoxes, Transfer, GreenBTC as GreenBTCContract } from '../types/GreenBTC/GreenBTC'
 
 import { GreenBTC, GreenBTCBlock } from '../types/schema'
-import { ONE_BI, ZERO_BI } from './helpers'
+import { ONE_BI, ZERO_BI, ADDRESS_ZERO } from './helpers'
 
 const ADDRESS_GREENTBTC = '0xdf51f3dcd849f116948a5b23760b1ca0b5425bde'
 
@@ -13,30 +13,37 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   let greenBTC = GreenBTC.load("GREEN_BTC")
   if (greenBTC === null) {
     greenBTC = new GreenBTC("GREEN_BTC")
+    greenBTC.bought = ZERO_BI
+    greenBTC.opened = ZERO_BI
+    greenBTC.revealed = ZERO_BI
+    greenBTC.won = ZERO_BI
+    greenBTC.amountEnergy = ZERO_BI
     greenBTC.save()
   }
 
-  greenBTC.indexLast = greenBTC.indexLast.plus(ONE_BI)
-  greenBTC.bought = greenBTC.indexLast.plus(ONE_BI)
+  greenBTC.bought = greenBTC.bought.plus(ONE_BI)
   greenBTC.amountEnergy = greenBTC.amountEnergy.plus(event.params.ARTCount)
   greenBTC.save()
 
-  let greenBTCBlock = new GreenBTCBlock("GREENBTC_BLOCK_"+ event.params.height.toString().padStart(6,'0'))
-  greenBTCBlock.indexBuy = greenBTC.indexLast
+  let greenBTCBlock = new GreenBTCBlock("GREENBTC_BLOCK_"+ event.params.height.toString().padStart(8,'0'))
   greenBTCBlock.heightBTC = event.params.height
   greenBTCBlock.amountEnergy = event.params.ARTCount
-  greenBTCBlock.greenType = event.params.greenType
-  greenBTCBlock.owner = event.params.minter
+  greenBTCBlock.indexBuy = greenBTC.bought
+  greenBTCBlock.buyTxHash = event.transaction.hash
+  greenBTCBlock.opener = Bytes.fromHexString(ADDRESS_ZERO)
   greenBTCBlock.openBlockHeight = ZERO_BI
+  greenBTCBlock.owner = event.params.minter
+  greenBTCBlock.greenType = event.params.greenType
   greenBTCBlock.seed = ZERO_BI
-  greenBTCBlock.status = 1              // sold
+  greenBTCBlock.status = 1                // sold
   greenBTCBlock.save()
 }
 
-// event OpenBox(address openner, uint256 tokenID, uint256 blockNumber)
+// event OpenBox(address opener, uint256 tokenID, uint256 blockNumber)
 export function handleOpenBox(event: OpenBox): void {
 
-  let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.tokenID.toString().padStart(6,'0'))!
+  let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.tokenID.toString().padStart(8,'0'))!
+  greenBTCBlock.opener = event.params.opener
   greenBTCBlock.openBlockHeight = event.params.blockNumber
   greenBTCBlock.status = 2              // opened
   greenBTCBlock.save()
@@ -55,13 +62,13 @@ export function handleRevealBoxes(event: RevealBoxes): void {
   let greenBTC = GreenBTC.load("GREEN_BTC")!
 
   for (let index = 0; index < revealList.length; index++) {
-    let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ revealList[index].toString().padStart(6,'0'))!
+    let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ revealList[index].toString().padStart(8,'0'))!
 
     let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
     let dataNFT = greenBTCContract.dataNFT(revealList[index])
 
-    greenBTCBlock.seed = dataNFT.value5
-    greenBTCBlock.status = wonList[index] ? 6 : 3             // 6: won
+    greenBTCBlock.seed = dataNFT.value5                       // retrieve seed
+    greenBTCBlock.status = wonList[index] ? 6 : 3             // 3: revealed, but un-won;  6: won
     greenBTCBlock.save() 
 
     if (wonList[index]) greenBTC.won = greenBTC.won.plus(ONE_BI)
@@ -69,6 +76,14 @@ export function handleRevealBoxes(event: RevealBoxes): void {
 
   greenBTC.revealed = greenBTC.revealed.plus(BigInt.fromI32(revealList.length))
   greenBTC.save()
-
 }
 
+// event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+export function handleTransfer(event: Transfer): void {
+
+  if (event.params.from.toHexString() != ADDRESS_ZERO) {
+    let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.tokenId.toString().padStart(8,'0'))!
+    greenBTCBlock.owner = event.params.to
+    greenBTCBlock.save()
+  }
+}

@@ -1,19 +1,16 @@
 /* eslint-disable prefer-const */
-import { ethereum, Bytes, BigInt, log, Address } from '@graphprotocol/graph-ts'
+import { Address } from '@graphprotocol/graph-ts'
 import { OffsetCertificateMinted, OffsetCertificateUpdated, OffsetAttached, ArkreenBadge } from '../types/ArkreenBadge/ArkreenBadge'
-
-import { ARECBadge, ClimateAction } from '../types/schema'
-
-const ADDRESS_AREC_BADGE  = '0xb17facaca106fb3d216923db6cabfc7c0517029d'
+import { ARECBadge, ClimateAction, ARECOverview, ARTOverview } from '../types/schema'
+import { ZERO_BI, ADDRESS_AREC_BADGE } from './ArkreenRECIssuance'
 
 // event OffsetCertificateMinted(uint256 tokenId)
 export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): void {
-
-  let arecBadge = new ARECBadge("AREC_Badge_" + event.params.tokenId.toString().padStart(6,'0'))
-
+  
   let arkreenBadge = ArkreenBadge.bind(Address.fromString(ADDRESS_AREC_BADGE))
   let arecBadgeInfo = arkreenBadge.getCertificate(event.params.tokenId)
 
+  let arecBadge = new ARECBadge("AREC_Badge_" + event.params.tokenId.toString().padStart(6,'0'))
   arecBadge.offsetEntity = arecBadgeInfo.offsetEntity
   arecBadge.beneficiary = arecBadgeInfo.beneficiary
   arecBadge.offsetEntityID = arecBadgeInfo.offsetEntityID
@@ -25,18 +22,23 @@ export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): v
   arecBadge.save()
 
   let numActions = arecBadgeInfo.offsetIds.length
-  for (let index = 0; index < numActions; numActions++) {
-    let climateAction  = new ClimateAction("Action_" + arecBadgeInfo.offsetIds[index].toString().padStart(6,'0'))
-
-    let actionInfo = arkreenBadge.getOffsetActions(arecBadgeInfo.offsetIds[index])
-    climateAction.offsetEntity = actionInfo.offsetEntity
-    climateAction.issuerREC = actionInfo.issuerREC
-    climateAction.amount = actionInfo.amount
-    climateAction.tokenId = actionInfo.tokenId
-    climateAction.createdAt = actionInfo.createdAt.toI32()
-    climateAction.bClaimed = actionInfo.bClaimed
+  for (let index = 0; index < numActions; index++) {
+    let climateAction = ClimateAction.load("Action_" + arecBadgeInfo.offsetIds[index].toString().padStart(6,'0'))!
+    climateAction.bClaimed = true
     climateAction.save()
+
+    let artOverview = ARTOverview.load(climateAction.ARTAsset)!
+    artOverview.numOffsetClaimed = artOverview.numOffsetClaimed + 1
+    artOverview.amountARTOffsetClaimed = artOverview.amountARTOffsetClaimed.plus(climateAction.amount)
+    artOverview.save()
   }
+
+  let arecOverview = ARECOverview.load("AREC_VIEW")!
+  arecOverview.numClimateBadge = arecOverview.numClimateBadge + 1
+  arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + arecBadgeInfo.offsetIds.length
+  arecOverview.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed.plus(arecBadgeInfo.offsetTotalAmount)
+  arecOverview.save()
+
 }
 
 // event OffsetCertificateUpdated(uint256 tokenId)
@@ -55,33 +57,40 @@ export function handleOffsetCertificateUpdated(event: OffsetCertificateUpdated):
   arecBadge.save()
 }
 
-// event OffsetAttached(uint256 tokenId)
+// event OffsetAttached(uint256 tokenId, uint256[] offsetIds)
 export function handleOffsetAttached(event: OffsetAttached): void {
-
+/*  
   let callData = ethereum.decode('(uint256,uint256[])', 
-                                  Bytes.fromHexString(event.transaction.input.toHexString().slice(10)))
+                                  Bytes.fromHexString('0x0000000000000000000000000000000000000000000000000000000000000020' +
+                                                      event.transaction.input.toHexString().slice(10)))
 
   let offsetIds = changetype<BigInt[]>(callData!.toTuple()[1])
-
-  let arecBadge = ARECBadge.load("AREC_Badge_" + event.params.tokenId.toString().padStart(6,'0'))!
-
+*/
+  let offsetIds = event.params.offsetIds
   let arkreenBadge = ArkreenBadge.bind(Address.fromString(ADDRESS_AREC_BADGE))
-  arecBadge.offsetIds = arecBadge.offsetIds.concat(offsetIds)
-  arecBadge.save()
 
   let numActions = offsetIds.length
-  for (let index = 0; index < numActions; numActions++) {
-    let climateAction  = new ClimateAction("Action_" + offsetIds[index].toString().padStart(6,'0'))
-
+  let offsetTotalAmountAttached = ZERO_BI
+  for (let index = 0; index < numActions; index++) {
+    let climateAction  = ClimateAction.load("Action_" + offsetIds[index].toString().padStart(6,'0'))!
     let actionInfo = arkreenBadge.getOffsetActions(offsetIds[index])
-    climateAction.offsetEntity = actionInfo.offsetEntity
-    climateAction.issuerREC = actionInfo.issuerREC
-    climateAction.amount = actionInfo.amount
-    climateAction.tokenId = actionInfo.tokenId
-    climateAction.createdAt = actionInfo.createdAt.toI32()
+    offsetTotalAmountAttached = offsetTotalAmountAttached.plus(actionInfo.amount)
     climateAction.bClaimed = actionInfo.bClaimed
     climateAction.save()
+
+    let artOverview = ARTOverview.load(climateAction.ARTAsset)!
+    artOverview.numOffsetClaimed = artOverview.numOffsetClaimed + 1
+    artOverview.amountARTOffsetClaimed = artOverview.amountARTOffsetClaimed.plus(climateAction.amount)
+    artOverview.save()
   }
+
+  let arecBadge = ARECBadge.load("AREC_Badge_" + event.params.tokenId.toString().padStart(6,'0'))!
+  arecBadge.offsetIds = arecBadge.offsetIds.concat(offsetIds)
+  arecBadge.offsetTotalAmount = arecBadge.offsetTotalAmount.plus(offsetTotalAmountAttached)
+  arecBadge.save()
+
+  let arecOverview = ARECOverview.load("AREC_VIEW")!
+  arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + offsetIds.length
+  arecOverview.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed.plus(offsetTotalAmountAttached)
+  arecOverview.save()
 }
-
-

@@ -133,6 +133,12 @@
           "internalType": "uint256",
           "name": "tokenId",
           "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[]",
+          "name": "offsetIds",
+          "type": "uint256[]"
         }
       ],
       "name": "OffsetAttached",
