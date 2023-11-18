@@ -24,22 +24,26 @@ export function handleOffsetFinished(event: OffsetFinished): void {
   climateAction.issuerREC = actionInfo.issuerREC
   climateAction.amount = actionInfo.amount
   
-  log.warning("handleOffsetFinished: XXX, {}, {}", [FLAG_REDEEM_MULTI.toHexString(), FLAG_REDEEM_MULTI_MASK.toHexString()])
-
   let offsetDetailId = actionInfo.tokenId.bitAnd(FLAG_REDEEM_MULTI_MASK)
-  log.warning("handleOffsetFinished: {}, {}", [actionInfo.tokenId.toHexString(), offsetDetailId.toHexString()])
 
   if (actionInfo.tokenId.bitAnd(FLAG_REDEEM_MULTI) == FLAG_REDEEM_MULTI) {
+  
+    // let offsetDetailInfoResult = arkreenBadge.try_getOffsetDetails(offsetDetailId)
+    // let offsetDetailInfo = arkreenBadge.getOffsetDetails(offsetDetailId), reverted
+    // getOffsetDetails, try_getOffsetDetails always reverted, so use this workaround as this 
 
-  /*    
-    let offsetDetailInfo = arkreenBadge.getOffsetDetails(offsetDetailId)
-    let offsetLength = offsetDetailInfo.length
-    let allTokenIds = new Array<string>(offsetLength)
-    let allAmounts  = new Array<BigInt>(offsetLength)
+    let allTokenIds = new Array<string>(0)
+    let allAmounts  = new Array<BigInt>(0)
+    let index = 0
 
-    for (let index = 0; index < offsetLength; index++) {
-      allTokenIds[index] = 'AREC_NFT_' + offsetDetailInfo[index].tokenId.toString().padStart(6,'0')
-      allAmounts[index] =  offsetDetailInfo[index].amount
+    while(true) {
+      let offsetDetailInfoResult = arkreenBadge.try_OffsetDetails(offsetDetailId, BigInt.fromI32(index))
+      if (offsetDetailInfoResult.reverted) break
+      let offsetDetailInfo = offsetDetailInfoResult.value
+
+      allTokenIds.push('AREC_NFT_' + offsetDetailInfo.value0.toString().padStart(6,'0'))
+      allAmounts.push(offsetDetailInfo.value1)
+      index = index + 1
     }
 
     let offsetDetail = new OffsetDetail("Offset_Detail_" + offsetDetailId.toString().padStart(6,'0'))
@@ -49,18 +53,11 @@ export function handleOffsetFinished(event: OffsetFinished): void {
 
     climateAction.actionType = 'Offset_Multi'
     climateAction.offsetDetail = offsetDetail.id
-    */
-
-    climateAction.actionType = 'Offset_Multi'
-    climateAction.offsetDetail = offsetDetailId.toString()
 
   } else {
-    log.warning("AAAA handleOffsetFinished: {}", [offsetDetailId.toHexString()])
-
     climateAction.actionType = 'Offset'
     let areNFT = ARECNFT.load("AREC_NFT_" + offsetDetailId.toString().padStart(6,'0'))!
     climateAction.arecNFTRetired = areNFT.id
-
   }
 
   climateAction.createdAt = actionInfo.createdAt.toI32()

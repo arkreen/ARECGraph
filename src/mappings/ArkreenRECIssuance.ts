@@ -349,9 +349,6 @@ export function handleRedeemFinished(event: RedeemFinished): void {
   climateAction.issuerREC = actionInfo.issuerREC
   climateAction.amount = actionInfo.amount
   climateAction.actionType = 'Redeem'
-  // climateAction.arecNFTRetired = "AREC_NFT_" + actionInfo.tokenId.toString().padStart(6,'0')  // 2msb Flag of TokenId should be 00
-
-  log.warning("BBBB handleRedeemFinished: {}, {}", [actionInfo.tokenId.toString(), actionInfo.tokenId.toHexString()])
 
   let areNFT = ARECNFT.load("AREC_NFT_" + actionInfo.tokenId.toString().padStart(6,'0'))!
   climateAction.arecNFTRetired = areNFT.id

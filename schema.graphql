@@ -90,7 +90,7 @@ type ClimateAction @entity {
   amount:                 BigInt!
   actionType:             String!
   arecNFTRetired:         ARECNFT
-  offsetDetail:           String
+  offsetDetail:           OffsetDetail
   createdAt:              Int!
   bClaimed:               Boolean!
 }
