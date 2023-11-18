@@ -6,8 +6,8 @@ import { ArkreenBadge } from '../types/templates/ArkreenRECToken/ArkreenBadge'
 
 import { ADDRESS_ZERO, ADDRESS_AREC_BADGE } from './ArkreenRECIssuance'
 
-export let FLAG_REDEEM_MULTI      = BigInt.fromUnsignedBytes(Bytes.fromHexString('0xc000000000000000'))
-export let FLAG_REDEEM_MULTI_MASK = BigInt.fromUnsignedBytes(Bytes.fromHexString('0x3fffffffffffffff'))
+export let FLAG_REDEEM_MULTI      = BigInt.fromUnsignedBytes(Bytes.fromHexString('0x00000000000000c0'))  // LSB First
+export let FLAG_REDEEM_MULTI_MASK = BigInt.fromUnsignedBytes(Bytes.fromHexString('0xffffffffffffff3f'))  // LSB First
 
 // event OffsetFinished(address indexed offsetEntity, uint256 amount, uint256 offsetId)
 export function handleOffsetFinished(event: OffsetFinished): void {
@@ -31,7 +31,8 @@ export function handleOffsetFinished(event: OffsetFinished): void {
 
   if (actionInfo.tokenId.bitAnd(FLAG_REDEEM_MULTI) == FLAG_REDEEM_MULTI) {
 
-    let offsetDetailInfo =  arkreenBadge.getOffsetDetails(offsetDetailId)
+  /*    
+    let offsetDetailInfo = arkreenBadge.getOffsetDetails(offsetDetailId)
     let offsetLength = offsetDetailInfo.length
     let allTokenIds = new Array<string>(offsetLength)
     let allAmounts  = new Array<BigInt>(offsetLength)
@@ -48,6 +49,10 @@ export function handleOffsetFinished(event: OffsetFinished): void {
 
     climateAction.actionType = 'Offset_Multi'
     climateAction.offsetDetail = offsetDetail.id
+    */
+
+    climateAction.actionType = 'Offset_Multi'
+    climateAction.offsetDetail = offsetDetailId.toString()
 
   } else {
     log.warning("AAAA handleOffsetFinished: {}", [offsetDetailId.toHexString()])
