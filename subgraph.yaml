@@ -10,7 +10,7 @@ dataSources:
     source:
       address: '0x954585adF9425F66a0a2FD8e10682EB7c4F1f1fD'
       abi: ArkreenRECIssuance
-      startBlock: 41123340
+      startBlock: 41130704
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

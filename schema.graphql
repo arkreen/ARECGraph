@@ -72,6 +72,7 @@ type Token @entity {
 
 type ARECBadge @entity {
   id:                     ID!
+  hashTx:                 Bytes!
   offsetEntity:           Bytes!
   beneficiary:            Bytes!
   offsetEntityID:         String!

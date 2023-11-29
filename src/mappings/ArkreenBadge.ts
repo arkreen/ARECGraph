@@ -26,6 +26,7 @@ export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): v
   }
 
   let arecBadge = new ARECBadge("AREC_Badge_" + event.params.tokenId.toString().padStart(6,'0'))
+  arecBadge.hashTx = event.transaction.hash
   arecBadge.offsetEntity = arecBadgeInfo.offsetEntity
   arecBadge.beneficiary = arecBadgeInfo.beneficiary
   arecBadge.offsetEntityID = arecBadgeInfo.offsetEntityID
