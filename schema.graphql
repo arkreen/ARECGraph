@@ -116,6 +116,8 @@ type GreenBTCBlock @entity {
   heightBTC:            BigInt!
   amountEnergy:         BigInt!
   indexBuy:             BigInt!
+  buyTimestamp:         BigInt!
+  openTimestamp:        BigInt!
   buyTxHash:            Bytes!
   opener:               Bytes!
   openBlockHeight:      BigInt!

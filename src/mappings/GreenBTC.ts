@@ -29,6 +29,8 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   greenBTCBlock.heightBTC = event.params.height
   greenBTCBlock.amountEnergy = event.params.ARTCount
   greenBTCBlock.indexBuy = greenBTC.bought
+  greenBTCBlock.buyTimestamp = event.block.timestamp
+  greenBTCBlock.openTimestamp = ZERO_BI
   greenBTCBlock.buyTxHash = event.transaction.hash
   greenBTCBlock.opener = Bytes.fromHexString(ADDRESS_ZERO)
   greenBTCBlock.openBlockHeight = ZERO_BI
@@ -45,6 +47,7 @@ export function handleOpenBox(event: OpenBox): void {
   let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.tokenID.toString().padStart(8,'0'))!
   greenBTCBlock.opener = event.params.opener
   greenBTCBlock.openBlockHeight = event.params.blockNumber
+  greenBTCBlock.openTimestamp = event.block.timestamp
   greenBTCBlock.status = "Opened"              // opened
   greenBTCBlock.save()
 
