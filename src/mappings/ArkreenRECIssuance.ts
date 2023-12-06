@@ -125,7 +125,7 @@ export function handleRECRequested(event: RECRequested): void {
 
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
   let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
-  let owner = arkreenRECIssuance.ownerOf(event.params.tokenId)
+  //let owner = arkreenRECIssuance.ownerOf(event.params.tokenId)
 
   let NFTID = event.params.tokenId.toString()
   let arecNFT = new ARECNFT("AREC_NFT_" + NFTID.padStart(6,'0'))
@@ -137,7 +137,8 @@ export function handleRECRequested(event: RECRequested): void {
   arecNFT.timeLiquidized = 0
   arecNFT.amountREC = recData.amountREC
   arecNFT.amountRECRetired = ZERO_BI
-  arecNFT.owner = owner
+  arecNFT.minter = recData.minter
+  arecNFT.owner = recData.minter
   arecNFT.serialNumber = ''
   arecNFT.startTime = recData.startTime.toI32()
   arecNFT.endTime = recData.endTime.toI32()
@@ -161,7 +162,7 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
   
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
   let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
-  let owner = arkreenRECIssuance.ownerOf(event.params.tokenId)
+  //let owner = arkreenRECIssuance.ownerOf(event.params.tokenId)
 
 /*  
   log.debug("AAAAAA event.transaction.input: {}, {}", [event.transaction.input.toHexString(), event.transaction.input.toHexString().slice(10)] )
@@ -276,7 +277,8 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
   arecNFT.timeLiquidized = 0
   arecNFT.amountREC = recData.amountREC
   arecNFT.amountRECRetired = ZERO_BI
-  arecNFT.owner = owner
+  arecNFT.minter = recData.minter
+  arecNFT.owner = recData.minter
   arecNFT.serialNumber = ''
   arecNFT.startTime = 0
   arecNFT.endTime = 0

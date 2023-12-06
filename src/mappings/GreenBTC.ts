@@ -34,6 +34,7 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   greenBTCBlock.buyTxHash = event.transaction.hash
   greenBTCBlock.opener = Bytes.fromHexString(ADDRESS_ZERO)
   greenBTCBlock.openBlockHeight = ZERO_BI
+  greenBTCBlock.minter = event.params.minter
   greenBTCBlock.owner = event.params.minter
   greenBTCBlock.greenType = event.params.greenType
   greenBTCBlock.seed = ''

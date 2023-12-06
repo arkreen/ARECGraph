@@ -43,6 +43,7 @@ type ARECNFT @entity {
   timeLiquidized:             Int!
   amountREC:                  BigInt!
   amountRECRetired:           BigInt!
+  minter:                     Bytes!
   owner:                      Bytes!
   serialNumber:               String!
   startTime:                  Int!
@@ -118,9 +119,10 @@ type GreenBTCBlock @entity {
   indexBuy:             BigInt!
   buyTimestamp:         BigInt!
   openTimestamp:        BigInt!
+  openBlockHeight:      BigInt!
   buyTxHash:            Bytes!
   opener:               Bytes!
-  openBlockHeight:      BigInt!
+  minter:               Bytes!
   owner:                Bytes!
   greenType:            Int!
   seed:                 String!
