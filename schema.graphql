@@ -23,6 +23,7 @@ type ARTOverview @entity {
   numNFTCertified:            Int!
   numNFTRedeemed:             Int!
   numNFTLiquidized:           Int!
+  numSolidified:              Int!
   numOffsetAction:            Int!
   numOffsetClaimed:           Int!
   amountNFTMinted:            BigInt!
@@ -31,6 +32,7 @@ type ARTOverview @entity {
   amountNFTLiquidized:        BigInt!
   amountARTOffset:            BigInt!
   amountARTOffsetClaimed:     BigInt!
+  amountARTSolidy:            BigInt!
 }
 
 type ARECNFT @entity {
@@ -95,6 +97,14 @@ type ClimateAction @entity {
   offsetDetail:           OffsetDetail
   createdAt:              Int!
   bClaimed:               Boolean!
+}
+
+type SolidifyMint @entity {
+  id:                     ID!
+  solidifier:             Bytes!
+  amountSolidify:         BigInt!
+  numberAREC:             Int!
+  feeSolidify:            BigInt!
 }
 
 type OffsetDetail @entity {

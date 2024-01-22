@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
-import { ARECOverview,  ARTOverview, Token, ClimateAction, OffsetDetail, ARECNFT } from '../types/schema'
-import { OffsetFinished, Transfer } from '../types/templates/ArkreenRECToken/ArkreenRECToken'
+import { ARECOverview,  ARTOverview, Token, ClimateAction, OffsetDetail, ARECNFT, SolidifyMint } from '../types/schema'
+import { OffsetFinished, Transfer, Solidify } from '../types/templates/ArkreenRECToken/ArkreenRECToken'
 import { ArkreenBadge } from '../types/templates/ArkreenRECToken/ArkreenBadge'
 
 import { ADDRESS_ZERO, ADDRESS_AREC_BADGE } from './ArkreenRECIssuance'
@@ -72,6 +72,21 @@ export function handleOffsetFinished(event: OffsetFinished): void {
   arecOverview.amountARECOffset = arecOverview.amountARECOffset.plus(event.params.amount)
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
   arecOverview.save()
+}
+
+// event Solidify(address indexed account, uint256 amount, uint256 numberAREC, uint256 feeSolidify);
+export function handleSolidify(event: Solidify): void {
+  let artOverview = ARTOverview.load(event.address.toHexString())!
+  artOverview.numSolidified = artOverview.numSolidified + 1
+  artOverview.amountARTSolidy = artOverview.amountARTSolidy.plus(event.params.amount)
+  artOverview.save()
+
+  let solidifyMint  = new SolidifyMint("Solidify_" + event.transaction.hash.toHexString() )
+  solidifyMint.solidifier = event.params.account
+  solidifyMint.amountSolidify = event.params.amount
+  solidifyMint.numberAREC = event.params.numberAREC.toI32()
+  solidifyMint.feeSolidify = event.params.feeSolidify
+  solidifyMint.save()
 }
 
 // event: Transfer(indexed address from,indexed address to,uint256 value)

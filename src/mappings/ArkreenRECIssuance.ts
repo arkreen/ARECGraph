@@ -105,6 +105,7 @@ export function handleRECRequested(event: RECRequested): void {
     artOverview.numNFTCertified = 0
     artOverview.numNFTRedeemed = 0
     artOverview.numNFTLiquidized = 0
+    artOverview.numSolidified = 0    
     artOverview.numOffsetAction = 0
     artOverview.numOffsetClaimed = 0
     artOverview.amountNFTMinted = ZERO_BI
@@ -113,6 +114,7 @@ export function handleRECRequested(event: RECRequested): void {
     artOverview.amountNFTLiquidized = ZERO_BI
     artOverview.amountARTOffset = ZERO_BI
     artOverview.amountARTOffsetClaimed = ZERO_BI
+    artOverview.amountARTSolidy = ZERO_BI
     artOverview.save()
 
     let ARTList = arecOverview.ARTList
@@ -249,6 +251,7 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
     artOverview.numNFTCertified = 0
     artOverview.numNFTRedeemed = 0
     artOverview.numNFTLiquidized = 0
+    artOverview.numSolidified = 0
     artOverview.numOffsetAction = 0
     artOverview.numOffsetClaimed = 0
     artOverview.amountNFTMinted = ZERO_BI
@@ -257,6 +260,7 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
     artOverview.amountNFTLiquidized = ZERO_BI
     artOverview.amountARTOffset = ZERO_BI
     artOverview.amountARTOffsetClaimed = ZERO_BI
+    artOverview.amountARTSolidy = ZERO_BI
     artOverview.save()
 
     let ARTList = arecOverview.ARTList

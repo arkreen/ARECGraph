@@ -129,6 +129,7 @@ templates:
       eventHandlers:
         - event: OffsetFinished(indexed address,uint256,uint256)
           handler: handleOffsetFinished
+        - event: Solidify(indexed address,uint256,uint256,uint256)
+          handler: handleSolidify 
         - event: Transfer(indexed address,indexed address,uint256)
-          handler: handleTransfer              
-
+          handler: handleTransfer
