@@ -19,15 +19,15 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
-export const ADDRESS_NATIVE = '0x9c3c9283d3e44854697cd22d3faa240cfb032889'
-export const ADDRESS_BANK = '0x7ee6d2a14d6db71339a010d44793b27895b36d50'     
-export const ADDRESS_ART   = '0x58e4d14ccddd1e993e6368a8c5eaa290c95cafdf' 
-export const ADDRESS_hART  = '0x93b3bb6c51a247a27253c33f0d0c2ff1d4343214' 
+export const ADDRESS_NATIVE = '0x9c3c9283d3e44854697cd22d3faa240cfb032889'    // ********
+export const ADDRESS_BANK = '0x7ee6d2a14d6db71339a010d44793b27895b36d50'      // ********
+export const ADDRESS_ART   = '0xb0c9dd915f62d0a37792fd2ce497680e909d8c0f'     // ********
+export const ADDRESS_hART  = '0x0999afb673944a7b8e1ef8eb0a7c6ffdc0b43e31'     // ********
 export const ADDRESS_cART  = '0x0d7899f2d36344ed21829d4ebc49cc0d335b4a06'
-export const ADDRESS_REGISTRY     = '0xb17facaca106fb3d216923db6cabfc7c0517029d'
-export const ADDRESS_ISSUANCE     = '0x954585adf9425f66a0a2fd8e10682eb7c4f1f1fd'   
-export const ADDRESS_AKRE         = '0x21b101f5d61a66037634f7e1beb5a733d9987d57'    // tAKRE
-export const ADDRESS_AREC_BADGE   = '0x1e5132495cdaBac628aB9F5c306722e33f69aa24'
+export const ADDRESS_REGISTRY     = '0x047eb5205251c5fc8a21ba8f8d46f57df62013c8'    // ********
+export const ADDRESS_ISSUANCE     = '0x95f56340889642a41b913c32d160d2863536e073'    // ********
+export const ADDRESS_AKRE         = '0x54e1c534f59343c56549c76d1bdccc8717129832'    // tAKRE
+export const ADDRESS_AREC_BADGE   = '0x5c653b445be2bdeb6f8f3cd099fc801865cab835'    // ********
 
 // event RECRequested(address owner, uint256 tokenId)
 export function handleRECRequested(event: RECRequested): void {
@@ -37,7 +37,15 @@ export function handleRECRequested(event: RECRequested): void {
     arecAssetType = new AREC_ASSET("AREC_ASSET_000")
 
     let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
-    let paymentTokenPrice = arkreenRECIssuance.paymentTokenPrice(Address.fromString(ADDRESS_AKRE))
+
+    let paymentTokenPrice: BigInt
+    let paymentTokenPriceResult = arkreenRECIssuance.try_paymentTokenPrice(Address.fromString(ADDRESS_AKRE))
+
+    if (!paymentTokenPriceResult.reverted) {
+      paymentTokenPrice = paymentTokenPriceResult.value
+    } else {
+      paymentTokenPrice = BigInt.fromI64(100000000000)
+    }
 
     let arkreenRegistry = ArkreenRegistry.bind(Address.fromString(ADDRESS_REGISTRY))
     arecAssetType.issuer = arkreenRegistry.tokenRECs(Address.fromString(ADDRESS_ART))

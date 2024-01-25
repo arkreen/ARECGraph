@@ -5,7 +5,7 @@ import { GreenBitCoin, OpenBox, RevealBoxes, Transfer, GreenBTC as GreenBTCContr
 import { GreenBTC, GreenBTCBlock } from '../types/schema'
 import { ONE_BI, ZERO_BI, ADDRESS_ZERO } from './helpers'
 
-const ADDRESS_GREENTBTC = '0xdf51f3dcd849f116948a5b23760b1ca0b5425bde'
+const ADDRESS_GREENTBTC = '0x770cb90378cb59665bbf623a72b90f427701c825'
 
 // event GreenBitCoin(uint256 height, uint256 ARTCount, address minter, uint8 greenType)
 export function handleGreenBitCoin(event: GreenBitCoin): void {
