@@ -77,9 +77,13 @@ export function handleOffsetFinished(event: OffsetFinished): void {
 // event Solidify(address indexed account, uint256 amount, uint256 numberAREC, uint256 feeSolidify);
 export function handleSolidify(event: Solidify): void {
   let artOverview = ARTOverview.load(event.address.toHexString())!
-  artOverview.numSolidified = artOverview.numSolidified + 1
-  artOverview.amountARTSolidy = artOverview.amountARTSolidy.plus(event.params.amount)
+  artOverview.numSolidified = artOverview.numSolidified + event.params.numberAREC.toI32()
+  artOverview.amountARTSolidied = artOverview.amountARTSolidied.plus(event.params.amount)
   artOverview.save()
+
+  let arecOverview = ARECOverview.load("AREC_VIEW")!
+  arecOverview.numARECNFTSolidified = arecOverview.numARECNFTSolidified + event.params.numberAREC.toI32()
+  arecOverview.amountARECSolidied = arecOverview.amountARECSolidied.plus(event.params.amount)
 
   let solidifyMint  = new SolidifyMint("Solidify_" + event.transaction.hash.toHexString() )
   solidifyMint.solidifier = event.params.account

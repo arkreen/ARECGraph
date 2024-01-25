@@ -44,6 +44,12 @@ dataSources:
           handler: handleRECLiquidized
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+        - event: RECRejected(uint256)
+          handler: handleRECRejected
+        - event: RECCanceled(address,uint256)
+          handler: handleRECCanceled
+        - event: RECDataUpdated(address,uint256)
+          handler: handleRECDataUpdated
   - kind: ethereum/contract
     name: ArkreenBadge
     network: matic

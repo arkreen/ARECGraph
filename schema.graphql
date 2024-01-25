@@ -4,6 +4,9 @@ type ARECOverview @entity {
   numARECNFTCertified:        Int!
   numARECNFTRedeemed:         Int!
   numARECNFTLiquidized:       Int!
+  numARECNFTRejected:         Int!
+  numARECNFTCancelled:        Int!
+  numARECNFTSolidified:       Int!
   numClimateAction:           Int!
   numClimateActionClaimed:    Int!
   numClimateBadge:            Int!
@@ -11,8 +14,11 @@ type ARECOverview @entity {
   amountARECNFTCertified:     BigInt!
   amountARECNFTRedeemed:      BigInt!
   amountARECNFTLiquidized:    BigInt!
+  amountARECNFTRejected:      BigInt!
+  amountARECNFTCancelled:     BigInt!
   amountARECOffset:           BigInt!
   amountARECOffsetClaimed:    BigInt!
+  amountARECSolidied:         BigInt!
   ARTList:                    [ARTOverview!]!
 }
 
@@ -23,6 +29,8 @@ type ARTOverview @entity {
   numNFTCertified:            Int!
   numNFTRedeemed:             Int!
   numNFTLiquidized:           Int!
+  numNFTRejected:             Int!
+  numNFTCancelled:            Int!
   numSolidified:              Int!
   numOffsetAction:            Int!
   numOffsetClaimed:           Int!
@@ -30,9 +38,11 @@ type ARTOverview @entity {
   amountNFTCertified:         BigInt!
   amountNFTRedeemed:          BigInt!
   amountNFTLiquidized:        BigInt!
+  amountNFTRejected:          BigInt!
+  amountNFTCancelled:         BigInt!
   amountARTOffset:            BigInt!
   amountARTOffsetClaimed:     BigInt!
-  amountARTSolidy:            BigInt!
+  amountARTSolidied:          BigInt!
 }
 
 type ARECNFT @entity {
@@ -43,6 +53,8 @@ type ARECNFT @entity {
   timeCertified:              Int!
   timeRedeemed:               Int!
   timeLiquidized:             Int!
+  timeRejected:               Int!
+  timeCancelled:              Int!
   amountREC:                  BigInt!
   amountRECRetired:           BigInt!
   minter:                     Bytes!
