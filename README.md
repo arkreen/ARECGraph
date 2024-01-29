@@ -21,7 +21,7 @@ For Celo Test Net:
 For Polygon Mummai Testnet:
 `npx graph deploy --product hosted-service lu-derik/arec-port-mumbi`
 `npx graph deploy --product hosted-service lu-derik/greenbtc-mumbai-dev`
-
+`npx graph deploy --studio greenbtc-mumbai-dev`
 
 For Polygon Mainnet:
 `npx graph deploy --product hosted-service lu-derik/arec-graph`
