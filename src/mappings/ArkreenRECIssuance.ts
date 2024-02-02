@@ -7,7 +7,7 @@ import { ArkreenRECToken as ArkreenRECTokenTemplate } from '../types/templates'
 
 import { RECRequested, ESGBatchMinted, RECCertified, ArkreenRECIssuance } from '../types/ArkreenRECIssuance/ArkreenRECIssuance'
 import { RedeemFinished, RECLiquidized, Transfer, RECRejected, RECCanceled, RECDataUpdated } from '../types/ArkreenRECIssuance/ArkreenRECIssuance'
-import { ArkreenBadge } from '../types/ArkreenRECIssuance/ArkreenBadge'
+import { ArkreenBadge, ArkreenBadge__offsetActionsResult, ArkreenBadge__getOffsetActionsResultValue0Struct } from '../types/ArkreenRECIssuance/ArkreenBadge'
 import { ArkreenRegistry } from '../types/ArkreenRECIssuance/ArkreenRegistry'
 
 import { fetchTokenSymbol, fetchTokenName, fetchTokenDecimals, fetchTokenTotalSupply } from './helpers'
@@ -29,6 +29,14 @@ export const ADDRESS_ISSUANCE     = '0x954585adf9425f66a0a2fd8e10682eb7c4f1f1fd'
 export const ADDRESS_AKRE         = '0x21b101f5d61a66037634f7e1beb5a733d9987d57'    // tAKRE
 export const ADDRESS_AREC_BADGE   = '0x1e5132495cdaBac628aB9F5c306722e33f69aa24'
 
+export interface offsetActions {
+  offsetEntity: Address;
+  issuerREC: Address;
+  amount: BigInt;
+  tokenId: BigInt;
+  createdAt: BigInt;
+  bClaimed: boolean;
+}
 // event RECRequested(address owner, uint256 tokenId)
 export function handleRECRequested(event: RECRequested): void {
 
@@ -37,7 +45,15 @@ export function handleRECRequested(event: RECRequested): void {
     arecAssetType = new AREC_ASSET("AREC_ASSET_000")
 
     let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
-    let paymentTokenPrice = arkreenRECIssuance.paymentTokenPrice(Address.fromString(ADDRESS_AKRE))
+
+    let paymentTokenPrice: BigInt
+    let paymentTokenPriceResult = arkreenRECIssuance.try_paymentTokenPrice(Address.fromString(ADDRESS_AKRE))
+
+    if (!paymentTokenPriceResult.reverted) {
+      paymentTokenPrice = paymentTokenPriceResult.value
+    } else {
+      paymentTokenPrice = BigInt.fromI64(100000000000)
+    }
 
     let arkreenRegistry = ArkreenRegistry.bind(Address.fromString(ADDRESS_REGISTRY))
     arecAssetType.issuer = arkreenRegistry.tokenRECs(Address.fromString(ADDRESS_ART))
@@ -372,7 +388,10 @@ export function handleRedeemFinished(event: RedeemFinished): void {
   let climateAction  = new ClimateAction("Action_" + event.params.offsetActionId.toString().padStart(6,'0'))
 
   let arkreenBadge = ArkreenBadge.bind(Address.fromString(ADDRESS_AREC_BADGE))
-  let actionInfo = arkreenBadge.getOffsetActions(event.params.offsetActionId)
+  let actionInfoResult = arkreenBadge.try_getOffsetActions(event.params.offsetActionId)
+  
+  if (!actionInfoResult.reverted) {
+    let actionInfo = actionInfoResult.value
 
   climateAction.ARTAsset = artOverview.id
   climateAction.offsetEntity = actionInfo.offsetEntity
@@ -386,6 +405,22 @@ export function handleRedeemFinished(event: RedeemFinished): void {
   climateAction.createdAt = actionInfo.createdAt.toI32()
   climateAction.bClaimed = actionInfo.bClaimed
   climateAction.save()
+  } else {
+    let offsetActionsResult  = arkreenBadge.offsetActions(event.params.offsetActionId)
+
+    climateAction.ARTAsset = artOverview.id
+    climateAction.offsetEntity = offsetActionsResult.value0
+    climateAction.issuerREC = offsetActionsResult.value1
+    climateAction.amount = offsetActionsResult.value2
+    climateAction.actionType = 'Redeem'
+  
+    let areNFT = ARECNFT.load("AREC_NFT_" + offsetActionsResult.value3.toString().padStart(6,'0'))!
+    climateAction.arecNFTRetired = areNFT.id
+  
+    climateAction.createdAt = offsetActionsResult.value4.toI32()
+    climateAction.bClaimed = offsetActionsResult.value5
+    climateAction.save()
+  }
 
   artOverview.numNFTRedeemed = artOverview.numNFTRedeemed + 1
   artOverview.numOffsetAction = artOverview.numOffsetAction + 1
