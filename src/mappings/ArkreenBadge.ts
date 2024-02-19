@@ -2,7 +2,7 @@
 import { Address } from '@graphprotocol/graph-ts'
 import { OffsetCertificateMinted, OffsetCertificateUpdated, OffsetAttached, ArkreenBadge } from '../types/ArkreenBadge/ArkreenBadge'
 import { ARECBadge, ClimateAction, ARECOverview, ARTOverview } from '../types/schema'
-import { ZERO_BI, ADDRESS_AREC_BADGE } from './ArkreenRECIssuance'
+import { ZERO_BI, ADDRESS_AREC_BADGE, updateARECSnapshort } from './ArkreenRECIssuance'
 
 // event OffsetCertificateMinted(uint256 tokenId)
 export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): void {
@@ -36,6 +36,8 @@ export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): v
   arecBadge.offsetTotalAmount = arecBadgeInfo.offsetTotalAmount
   arecBadge.offsetActions = offsetActions
   arecBadge.save()
+
+  updateARECSnapshort(event.block.timestamp)
 
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numClimateBadge = arecOverview.numClimateBadge + 1
@@ -94,6 +96,8 @@ export function handleOffsetAttached(event: OffsetAttached): void {
   arecBadge.offsetActions = arecBadge.offsetActions.concat(offsetActions)
   arecBadge.offsetTotalAmount = arecBadge.offsetTotalAmount.plus(offsetTotalAmountAttached)
   arecBadge.save()
+
+  updateARECSnapshort(event.block.timestamp)
 
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + offsetIds.length

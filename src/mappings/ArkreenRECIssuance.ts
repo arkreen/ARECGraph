@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { BigInt, BigDecimal, log, Address, ethereum, Bytes } from '@graphprotocol/graph-ts'
-import { ARECOverview,  ARTOverview, ARECNFT, ClimateAction } from '../types/schema'
+import { ARECOverview,  ARTOverview, ARECNFT, ClimateAction, ARECSnapshort } from '../types/schema'
 import { AREC_ASSET, Token } from '../types/schema'
 
 import { ArkreenRECToken as ArkreenRECTokenTemplate } from '../types/templates'
@@ -37,6 +37,44 @@ export interface offsetActions {
   createdAt: BigInt;
   bClaimed: boolean;
 }
+
+export function updateARECSnapshort(blocktime: BigInt): void {
+  let arecOverview = ARECOverview.load("AREC_VIEW")
+  if (arecOverview === null) return
+  
+  let timestamp = blocktime.toI32()
+  let dayID = timestamp / 86400
+  let dayStartTimestamp = dayID * 86400
+  if (dayStartTimestamp <= arecOverview.dayStartTimestamp) return;
+
+  let arecSnapshort = new ARECSnapshort(dayID.toString())
+  arecSnapshort.numARECNFTMinted = arecOverview.numARECNFTMinted
+  arecSnapshort.numARECNFTCertified = arecOverview.numARECNFTCertified
+  arecSnapshort.numARECNFTRedeemed = arecOverview.numARECNFTRedeemed
+  arecSnapshort.numARECNFTLiquidized = arecOverview.numARECNFTLiquidized
+  arecSnapshort.numARECNFTRejected = arecOverview.numARECNFTRejected
+  arecSnapshort.numARECNFTCancelled = arecOverview.numARECNFTCancelled
+  arecSnapshort.numARECNFTSolidified = arecOverview.numARECNFTSolidified
+  arecSnapshort.numClimateAction = arecOverview.numClimateAction
+  arecSnapshort.numClimateActionClaimed = arecOverview.numClimateActionClaimed
+  arecSnapshort.numClimateBadge = arecOverview.numClimateBadge
+  
+  arecSnapshort.amountARECNFTMinted = arecOverview.amountARECNFTMinted
+  arecSnapshort.amountARECNFTCertified = arecOverview.amountARECNFTCertified
+  arecSnapshort.amountARECNFTRedeemed = arecOverview.amountARECNFTRedeemed
+  arecSnapshort.amountARECNFTLiquidized = arecOverview.amountARECNFTLiquidized
+  arecSnapshort.amountARECNFTRejected = arecOverview.amountARECNFTRejected
+  arecSnapshort.amountARECNFTCancelled = arecOverview.amountARECNFTCancelled
+  arecSnapshort.amountARECOffset = arecOverview.amountARECOffset
+  arecSnapshort.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed
+  arecSnapshort.amountARECSolidied = arecOverview.amountARECSolidied
+  arecSnapshort.save()
+
+  arecOverview.dayStartTimestamp = dayStartTimestamp
+  arecOverview.save()
+}
+
+
 // event RECRequested(address owner, uint256 tokenId)
 export function handleRECRequested(event: RECRequested): void {
 
@@ -92,10 +130,13 @@ export function handleRECRequested(event: RECRequested): void {
       paymentToken.save()
     }
   }
+
+  updateARECSnapshort(event.block.timestamp)
   
   let arecOverview = ARECOverview.load("AREC_VIEW")
   if (arecOverview === null) {
     arecOverview = new ARECOverview("AREC_VIEW")
+    arecOverview.dayStartTimestamp = 0
     arecOverview.numARECNFTMinted = 0
     arecOverview.numARECNFTCertified = 0
     arecOverview.numARECNFTRedeemed = 0
@@ -254,6 +295,7 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
   let arecOverview = ARECOverview.load("AREC_VIEW")
   if (arecOverview === null) {
     arecOverview = new ARECOverview("AREC_VIEW")
+    arecOverview.dayStartTimestamp = 0
     arecOverview.numARECNFTMinted = 0
     arecOverview.numARECNFTCertified = 0
     arecOverview.numARECNFTRedeemed = 0
@@ -365,6 +407,8 @@ export function handleRECCertified(event: RECCertified): void {
   artOverview.amountNFTCertified = artOverview.amountNFTCertified.plus(recData.amountREC)
   artOverview.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTCertified = arecOverview.numARECNFTCertified +1 
   arecOverview.amountARECNFTCertified = arecOverview.amountARECNFTCertified.plus(recData.amountREC)
@@ -427,6 +471,8 @@ export function handleRedeemFinished(event: RedeemFinished): void {
   artOverview.amountNFTRedeemed = artOverview.amountNFTRedeemed.plus(recData.amountREC)
   artOverview.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTRedeemed = arecOverview.numARECNFTRedeemed + 1 
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
@@ -450,6 +496,8 @@ export function handleRECLiquidized(event: RECLiquidized): void {
   artOverview.numNFTLiquidized = artOverview.numNFTLiquidized + 1
   artOverview.amountNFTLiquidized = artOverview.amountNFTLiquidized.plus(recData.amountREC)
   artOverview.save()
+
+  updateARECSnapshort(event.block.timestamp)
 
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTLiquidized = arecOverview.numARECNFTLiquidized +1 
@@ -484,6 +532,8 @@ export function handleRECRejected(event: RECRejected): void {
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
   let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
 
   arecOverview.numARECNFTRejected = arecOverview.numARECNFTRejected + 1 
@@ -511,6 +561,8 @@ export function handleRECRejected(event: RECRejected): void {
 export function handleRECCanceled(event: RECCanceled): void {
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
   let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
+
+  updateARECSnapshort(event.block.timestamp)
 
   let arecOverview = ARECOverview.load("AREC_VIEW")!
 
@@ -542,6 +594,8 @@ export function handleRECCanceled(event: RECCanceled): void {
 export function handleRECDataUpdated(event: RECDataUpdated): void {
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
   let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
+
+  updateARECSnapshort(event.block.timestamp)
 
   let arecOverview = ARECOverview.load("AREC_VIEW")!
 

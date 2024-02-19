@@ -4,7 +4,7 @@ import { ARECOverview,  ARTOverview, Token, ClimateAction, OffsetDetail, ARECNFT
 import { OffsetFinished, Transfer, Solidify, OffsetFinished1 } from '../types/templates/ArkreenRECToken/ArkreenRECToken'
 import { ArkreenBadge } from '../types/templates/ArkreenRECToken/ArkreenBadge'
 
-import { ADDRESS_ZERO, ADDRESS_AREC_BADGE } from './ArkreenRECIssuance'
+import { ADDRESS_ZERO, ADDRESS_AREC_BADGE, updateARECSnapshort } from './ArkreenRECIssuance'
 
 export let FLAG_REDEEM_MULTI      = BigInt.fromUnsignedBytes(Bytes.fromHexString('0x00000000000000c0'))  // LSB First
 export let FLAG_REDEEM_MULTI_MASK = BigInt.fromUnsignedBytes(Bytes.fromHexString('0xffffffffffffff3f'))  // LSB First
@@ -71,6 +71,9 @@ export function handleOffsetFinished(event: OffsetFinished): void {
   artOverview.numOffsetAction = artOverview.numOffsetAction + 1
   artOverview.amountARTOffset = artOverview.amountARTOffset.plus(event.params.amount)
   artOverview.save()
+
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.amountARECOffset = arecOverview.amountARECOffset.plus(event.params.amount)
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
@@ -140,6 +143,8 @@ export function handleOffsetFinishedNoIndex(event: OffsetFinished1): void {
   artOverview.amountARTOffset = artOverview.amountARTOffset.plus(event.params.amount)
   artOverview.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.amountARECOffset = arecOverview.amountARECOffset.plus(event.params.amount)
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
@@ -152,6 +157,8 @@ export function handleSolidify(event: Solidify): void {
   artOverview.numSolidified = artOverview.numSolidified + event.params.numberAREC.toI32()
   artOverview.amountARTSolidied = artOverview.amountARTSolidied.plus(event.params.amount)
   artOverview.save()
+
+  updateARECSnapshort(event.block.timestamp)
 
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTSolidified = arecOverview.numARECNFTSolidified + event.params.numberAREC.toI32()

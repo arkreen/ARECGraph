@@ -1,5 +1,20 @@
+type tAKREOverview @entity {
+  id:                         ID!
+  numHolders:                 Int!
+  totalSupply:                BigInt!
+  totalMinted:               BigInt!
+  totalBurned:               BigInt!
+}
+
+type tAKREHolder @entity {
+  id:                         ID!
+  amountARKE:                 BigInt!
+  amountSnapshot:             BigInt!
+}
+
 type ARECOverview @entity {
   id:                         ID!
+  dayStartTimestamp:          Int!
   numARECNFTMinted:           Int!
   numARECNFTCertified:        Int!
   numARECNFTRedeemed:         Int!
@@ -43,6 +58,29 @@ type ARTOverview @entity {
   amountARTOffset:            BigInt!
   amountARTOffsetClaimed:     BigInt!
   amountARTSolidied:          BigInt!
+}
+
+type ARECSnapshort @entity {
+  id:                         ID!
+  numARECNFTMinted:           Int!
+  numARECNFTCertified:        Int!
+  numARECNFTRedeemed:         Int!
+  numARECNFTLiquidized:       Int!
+  numARECNFTRejected:         Int!
+  numARECNFTCancelled:        Int!
+  numARECNFTSolidified:       Int!
+  numClimateAction:           Int!
+  numClimateActionClaimed:    Int!
+  numClimateBadge:            Int!
+  amountARECNFTMinted:        BigInt!
+  amountARECNFTCertified:     BigInt!
+  amountARECNFTRedeemed:      BigInt!
+  amountARECNFTLiquidized:    BigInt!
+  amountARECNFTRejected:      BigInt!
+  amountARECNFTCancelled:     BigInt!
+  amountARECOffset:           BigInt!
+  amountARECOffsetClaimed:    BigInt!
+  amountARECSolidied:         BigInt!
 }
 
 type ARECNFT @entity {
