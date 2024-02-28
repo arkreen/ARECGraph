@@ -28,20 +28,20 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.height.toString().padStart(8,'0'))
   if (greenBTCBlock === null) {
   let greenBTCBlock = new GreenBTCBlock("GREENBTC_BLOCK_"+ event.params.height.toString().padStart(8,'0'))
-  greenBTCBlock.heightBTC = event.params.height
-  greenBTCBlock.amountEnergy = event.params.ARTCount
-  greenBTCBlock.indexBuy = greenBTC.bought
-  greenBTCBlock.buyTimestamp = event.block.timestamp
-  greenBTCBlock.openTimestamp = ZERO_BI
-  greenBTCBlock.buyTxHash = event.transaction.hash
-  greenBTCBlock.opener = Bytes.fromHexString(ADDRESS_ZERO)
-  greenBTCBlock.openBlockHeight = ZERO_BI
-  greenBTCBlock.minter = event.params.minter
-  greenBTCBlock.owner = event.params.minter
-  greenBTCBlock.greenType = event.params.greenType
-  greenBTCBlock.seed = ''
-  greenBTCBlock.status = "Sold"                // sold
-  greenBTCBlock.save()
+    greenBTCBlock.heightBTC = event.params.height
+    greenBTCBlock.amountEnergy = event.params.ARTCount
+    greenBTCBlock.indexBuy = greenBTC.bought
+    greenBTCBlock.buyTimestamp = event.block.timestamp
+    greenBTCBlock.openTimestamp = ZERO_BI
+    greenBTCBlock.buyTxHash = event.transaction.hash
+    greenBTCBlock.opener = Bytes.fromHexString(ADDRESS_ZERO)
+    greenBTCBlock.openBlockHeight = ZERO_BI
+    greenBTCBlock.minter = event.params.minter
+    greenBTCBlock.owner = event.params.minter
+    greenBTCBlock.greenType = event.params.greenType
+    greenBTCBlock.seed = ''
+    greenBTCBlock.status = "Sold"                // sold
+    greenBTCBlock.save()
   } else {                                        // For event OpenBox first
 //  greenBTCBlock.heightBTC = event.params.height
     greenBTCBlock.amountEnergy = event.params.ARTCount
@@ -72,8 +72,8 @@ export function handleOpenBox(event: OpenBox): void {
     greenBTCBlock.buyTimestamp = event.block.timestamp
     greenBTCBlock.openTimestamp = event.block.timestamp
     greenBTCBlock.buyTxHash = event.transaction.hash
-  greenBTCBlock.opener = event.params.opener
-  greenBTCBlock.openBlockHeight = event.params.blockNumber
+    greenBTCBlock.opener = event.params.opener
+    greenBTCBlock.openBlockHeight = event.params.blockNumber
     greenBTCBlock.minter = Bytes.fromHexString(ADDRESS_ZERO)
     greenBTCBlock.owner = Bytes.fromHexString(ADDRESS_ZERO)
     greenBTCBlock.greenType = 0
@@ -83,9 +83,9 @@ export function handleOpenBox(event: OpenBox): void {
   } else {
     greenBTCBlock.opener = event.params.opener
     greenBTCBlock.openBlockHeight = event.params.blockNumber
-  greenBTCBlock.openTimestamp = event.block.timestamp
-  greenBTCBlock.status = "Opened"              // opened
-  greenBTCBlock.save()
+    greenBTCBlock.openTimestamp = event.block.timestamp
+    greenBTCBlock.status = "Opened"              // opened
+    greenBTCBlock.save()
   }
 
   let greenBTC = GreenBTC.load("GREEN_BTC")!

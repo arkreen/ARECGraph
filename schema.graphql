@@ -1,9 +1,10 @@
 type tAKREOverview @entity {
   id:                         ID!
+  heightLaunch:               BigInt!
   numHolders:                 Int!
   totalSupply:                BigInt!
-  totalMinted:               BigInt!
-  totalBurned:               BigInt!
+  totalMinted:                BigInt!
+  totalBurned:                BigInt!
 }
 
 type tAKREHolder @entity {
