@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import { Address } from '@graphprotocol/graph-ts'
 import { OffsetCertificateMinted, OffsetCertificateUpdated, OffsetAttached, ArkreenBadge } from '../types/ArkreenBadge/ArkreenBadge'
-import { ARECBadge, ClimateAction, ARECOverview, ARTOverview } from '../types/schema'
+import { ARECBadge, ClimateAction, ARECOverview, ARTOverview, UserARECOverview } from '../types/schema'
 import { ZERO_BI, ADDRESS_AREC_BADGE, updateARECSnapshort } from './ArkreenRECIssuance'
 
 // event OffsetCertificateMinted(uint256 tokenId)
@@ -44,6 +44,13 @@ export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): v
   arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + arecBadgeInfo.offsetIds.length
   arecOverview.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed.plus(arecBadgeInfo.offsetTotalAmount)
   arecOverview.save()
+
+  let userARECOverview = UserARECOverview.load("USER_AREC" + arecBadgeInfo.offsetEntity.toHexString())!
+  userARECOverview.numClimateBadge = userARECOverview.numClimateBadge + 1
+  userARECOverview.numClimateActionClaimed = userARECOverview.numClimateActionClaimed + arecBadgeInfo.offsetIds.length
+  userARECOverview.amountARECOffsetClaimed = userARECOverview.amountARECOffsetClaimed.plus(arecBadgeInfo.offsetTotalAmount)
+  userARECOverview.climateBadgeList.push(arecBadge.id)
+  userARECOverview.save()
 }
 
 // event OffsetCertificateUpdated(uint256 tokenId)
@@ -103,4 +110,9 @@ export function handleOffsetAttached(event: OffsetAttached): void {
   arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + offsetIds.length
   arecOverview.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed.plus(offsetTotalAmountAttached)
   arecOverview.save()
+
+  let userARECOverview = UserARECOverview.load("USER_AREC" + arecBadge.offsetEntity.toHexString())!
+  userARECOverview.numClimateActionClaimed = userARECOverview.numClimateActionClaimed + offsetIds.length
+  userARECOverview.amountARECOffsetClaimed = userARECOverview.amountARECOffsetClaimed.plus(offsetTotalAmountAttached)
+  userARECOverview.save()
 }

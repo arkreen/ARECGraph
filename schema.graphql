@@ -84,6 +84,31 @@ type ARECSnapshort @entity {
   amountARECSolidied:         BigInt!
 }
 
+type UserARECOverview @entity {
+  id:                         ID!
+  numARECNFTMinted:           Int!
+  numARECNFTCertified:        Int!
+  numARECNFTRedeemed:         Int!
+  numARECNFTLiquidized:       Int!
+  numARECNFTRejected:         Int!
+  numARECNFTCancelled:        Int!
+  numARECNFTSolidified:       Int!
+  numClimateAction:           Int!
+  numClimateActionClaimed:    Int!
+  numClimateBadge:            Int!
+  amountARECNFTMinted:        BigInt!
+  amountARECNFTCertified:     BigInt!
+  amountARECNFTRedeemed:      BigInt!
+  amountARECNFTLiquidized:    BigInt!
+  amountARECNFTRejected:      BigInt!
+  amountARECNFTCancelled:     BigInt!
+  amountARECOffset:           BigInt!
+  amountARECOffsetClaimed:    BigInt!
+  amountARECSolidied:         BigInt!
+  arecNFTListCertified:       [ARECNFT!]!
+  climateBadgeList:           [ARECBadge!]!
+}
+
 type ARECNFT @entity {
   id:                         ID!
   hashTx:                     Bytes!
@@ -171,6 +196,7 @@ type GreenBTC @entity {
   revealed:               BigInt!
   won:                    BigInt!
   amountEnergy:           BigInt!
+  amountWonEnergy:        BigInt!
 }
 
 type GreenBTCBlock @entity {
@@ -188,4 +214,15 @@ type GreenBTCBlock @entity {
   greenType:            Int!
   seed:                 String!
   status:               String!
+}
+
+type GreenBTCUser @entity {
+  id:                   ID!
+  bought:               BigInt!
+  opened:               BigInt!
+  revealed:             BigInt!
+  won:                  BigInt!
+  amountEnergy:         BigInt!
+  amountWonEnergy:      BigInt!
+  greenBTCBlockList:    [GreenBTCBlock!]!
 }
