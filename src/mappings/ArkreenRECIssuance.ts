@@ -258,7 +258,7 @@ export function handleRECRequested(event: RECRequested): void {
   arecNFT.status = recData.status
   arecNFT.save()
 
-  let userARECOverview = checkUserARECOverview("USER_AREC" + recData.minter.toHexString())
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + recData.minter.toHexString())
   userARECOverview.numARECNFTMinted = userARECOverview.numARECNFTMinted +1
   userARECOverview.amountARECNFTMinted = userARECOverview.amountARECNFTMinted.plus(recData.amountREC)
   userARECOverview.save()
@@ -420,7 +420,7 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
   arecNFT.status = recData.status
   arecNFT.save()
 
-  let userARECOverview = checkUserARECOverview("USER_AREC" + recData.minter.toHexString())
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + recData.minter.toHexString())
   userARECOverview.numARECNFTMinted = userARECOverview.numARECNFTMinted +1
   userARECOverview.amountARECNFTMinted = userARECOverview.amountARECNFTMinted.plus(recData.amountREC)
   userARECOverview.save()
@@ -458,10 +458,14 @@ export function handleRECCertified(event: RECCertified): void {
   artOverview.amountNFTCertified = artOverview.amountNFTCertified.plus(recData.amountREC)
   artOverview.save()
 
-  let userARECOverview = UserARECOverview.load("USER_AREC" + recData.minter.toHexString())!
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + recData.minter.toHexString())!
   userARECOverview.numARECNFTCertified = userARECOverview.numARECNFTCertified + 1
   userARECOverview.amountARECNFTCertified = userARECOverview.amountARECNFTCertified.plus(recData.amountREC)
-  userARECOverview.arecNFTListCertified.push(arecNFT.id)
+
+  let arecNFTListCertified = userARECOverview.arecNFTListCertified
+  arecNFTListCertified.push(arecNFT.id)
+  userARECOverview.arecNFTListCertified = arecNFTListCertified
+
   userARECOverview.save()
 
   updateARECSnapshort(event.block.timestamp)
@@ -536,7 +540,7 @@ export function handleRedeemFinished(event: RedeemFinished): void {
   arecOverview.amountARECNFTRedeemed = arecOverview.amountARECNFTRedeemed.plus(recData.amountREC)
   arecOverview.save()
 
-  let userARECOverview = UserARECOverview.load("USER_AREC" + event.params.redeemEntity.toHexString())!
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + event.params.redeemEntity.toHexString())!
 
   userARECOverview.numARECNFTRedeemed = arecOverview.numARECNFTRedeemed + 1 
   userARECOverview.numClimateAction = arecOverview.numClimateAction + 1 
@@ -569,7 +573,7 @@ export function handleRECLiquidized(event: RECLiquidized): void {
   arecOverview.save()
 
    // May get the AREC NFT by transfer
-  let userARECOverview = checkUserARECOverview("USER_AREC" + recData.minter.toHexString())
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + recData.minter.toHexString())
   userARECOverview.numARECNFTLiquidized = userARECOverview.numARECNFTLiquidized + 1
   userARECOverview.amountARECNFTLiquidized = userARECOverview.amountARECNFTLiquidized.minus(recData.amountREC)
   userARECOverview.save()
@@ -622,7 +626,7 @@ export function handleRECRejected(event: RECRejected): void {
   artOverview.amountNFTRejected = artOverview.amountNFTRejected.plus(recData.amountREC)
   artOverview.save()
   
-  let userARECOverview = UserARECOverview.load("USER_AREC" + recData.minter.toHexString())!
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + recData.minter.toHexString())!
   userARECOverview.numARECNFTRejected = userARECOverview.numARECNFTRejected + 1
   userARECOverview.amountARECNFTRejected = userARECOverview.amountARECNFTRejected.plus(recData.amountREC)
   userARECOverview.save()
@@ -660,7 +664,7 @@ export function handleRECCanceled(event: RECCanceled): void {
   
   artOverview.save()
 
-  let userARECOverview = UserARECOverview.load("USER_AREC" + recData.minter.toHexString())!
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + recData.minter.toHexString())!
   userARECOverview.numARECNFTCancelled = userARECOverview.numARECNFTCancelled + 1
   userARECOverview.numARECNFTRejected = userARECOverview.numARECNFTRejected - 1
   userARECOverview.amountARECNFTCancelled = userARECOverview.amountARECNFTCancelled.plus(recData.amountREC)
@@ -694,7 +698,7 @@ export function handleRECDataUpdated(event: RECDataUpdated): void {
   artOverview.amountNFTRejected = artOverview.amountNFTRejected.minus(recData.amountREC)
   artOverview.save()
 
-  let userARECOverview = UserARECOverview.load("USER_AREC" + recData.minter.toHexString())!
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + recData.minter.toHexString())!
   userARECOverview.numARECNFTRejected = userARECOverview.numARECNFTRejected - 1
   userARECOverview.amountARECNFTRejected = userARECOverview.amountARECNFTRejected.minus(recData.amountREC)
   userARECOverview.save()

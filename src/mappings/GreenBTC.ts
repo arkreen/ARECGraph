@@ -50,27 +50,29 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     greenBTCBlock.owner = event.params.minter
     greenBTCBlock.greenType = event.params.greenType
     greenBTCBlock.save()
+  }
 
-    let greenBTCUser = GreenBTCUser.load("GREENBTC_USER_" + event.params.minter.toHexString())
-    if (greenBTCUser === null) {
-      greenBTCUser = new GreenBTCUser("GREENBTC_USER_" + event.params.minter.toHexString())
-      greenBTCUser.bought = ZERO_BI
-      greenBTCUser.opened = ZERO_BI
-      greenBTCUser.revealed = ZERO_BI
-      greenBTCUser.won = ZERO_BI
-      greenBTCUser.amountEnergy = ZERO_BI
-      greenBTCUser.amountWonEnergy = ZERO_BI
-      greenBTCUser.greenBTCBlockList = []
-      greenBTCUser.save()
-    }
-
-    greenBTCUser.bought = greenBTCUser.bought.plus(ONE_BI)
-    greenBTCUser.amountEnergy = greenBTCUser.amountEnergy.plus(event.params.ARTCount)
-    if(greenBTCBlock.openTimestamp == ZERO_BI) {
-      greenBTCUser.greenBTCBlockList.push(greenBTCBlock.id)
-    }
+  let greenBTCUser = GreenBTCUser.load("GREENBTC_USER_" + event.params.minter.toHexString())
+  if (greenBTCUser === null) {
+    greenBTCUser = new GreenBTCUser("GREENBTC_USER_" + event.params.minter.toHexString())
+    greenBTCUser.bought = ZERO_BI
+    greenBTCUser.opened = ZERO_BI
+    greenBTCUser.revealed = ZERO_BI
+    greenBTCUser.won = ZERO_BI
+    greenBTCUser.amountEnergy = ZERO_BI
+    greenBTCUser.amountWonEnergy = ZERO_BI
+    greenBTCUser.greenBTCBlockList = []
     greenBTCUser.save()
   }
+
+  greenBTCUser.bought = greenBTCUser.bought.plus(ONE_BI)
+  greenBTCUser.amountEnergy = greenBTCUser.amountEnergy.plus(event.params.ARTCount)
+  
+  let greenBTCBlockList = greenBTCUser.greenBTCBlockList
+  greenBTCBlockList.push(greenBTCBlock.id)
+  greenBTCUser.greenBTCBlockList = greenBTCBlockList
+
+  greenBTCUser.save()
 }
 
 // event OpenBox(address opener, uint256 tokenID, uint256 blockNumber)
@@ -117,9 +119,6 @@ export function handleOpenBox(event: OpenBox): void {
     greenBTCUser.save()
   }
   greenBTCUser.opened = greenBTCUser.opened.plus(ONE_BI)
-  if(greenBTCBlock.indexBuy == ZERO_BI) {
-    greenBTCUser.greenBTCBlockList.push(greenBTCBlock.id)
-  }
   greenBTCUser.save()
 }
 

@@ -81,7 +81,7 @@ export function handleOffsetFinished(event: OffsetFinished): void {
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
   arecOverview.save()
   
-  let userARECOverview = checkUserARECOverview("USER_AREC" + actionInfo.offsetEntity.toHexString())
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + actionInfo.offsetEntity.toHexString())
   userARECOverview.amountARECOffset = userARECOverview.amountARECOffset.plus(event.params.amount)
   userARECOverview.numClimateAction = userARECOverview.numClimateAction + 1 
   userARECOverview.save()
@@ -157,7 +157,7 @@ export function handleOffsetFinishedNoIndex(event: OffsetFinished1): void {
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
   arecOverview.save()
 
-  let userARECOverview = checkUserARECOverview("USER_AREC" + actionInfo.offsetEntity.toHexString())
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + actionInfo.offsetEntity.toHexString())
   userARECOverview.amountARECOffset = userARECOverview.amountARECOffset.plus(event.params.amount)
   userARECOverview.numClimateAction = userARECOverview.numClimateAction + 1 
   userARECOverview.save()
@@ -177,9 +177,9 @@ export function handleSolidify(event: Solidify): void {
   arecOverview.amountARECSolidied = arecOverview.amountARECSolidied.plus(event.params.amount)
   arecOverview.save()
 
-  let userARECOverview = checkUserARECOverview("USER_AREC" + event.params.account.toHexString())
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + event.params.account.toHexString())
   if (userARECOverview === null) {                
-      userARECOverview = new UserARECOverview("USER_AREC" + event.params.account.toHexString())
+      userARECOverview = new UserARECOverview("USER_AREC_" + event.params.account.toHexString())
       userARECOverview.numARECNFTMinted = 0
       userARECOverview.numARECNFTCertified = 0
       userARECOverview.numARECNFTRedeemed = 0
