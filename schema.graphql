@@ -105,8 +105,6 @@ type UserARECOverview @entity {
   amountARECOffset:           BigInt!
   amountARECOffsetClaimed:    BigInt!
   amountARECSolidied:         BigInt!
-  arecNFTListCertified:       [ARECNFT!]!
-  climateBadgeList:           [ARECBadge!]!
 }
 
 type ARECNFT @entity {
@@ -224,5 +222,4 @@ type GreenBTCUser @entity {
   won:                  BigInt!
   amountEnergy:         BigInt!
   amountWonEnergy:      BigInt!
-  greenBTCBlockList:    [GreenBTCBlock!]!
 }

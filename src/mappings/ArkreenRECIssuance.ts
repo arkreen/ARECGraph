@@ -70,8 +70,8 @@ export function checkUserARECOverview(id: string): UserARECOverview  {
     userARECOverview.amountARECOffset = ZERO_BI
     userARECOverview.amountARECOffsetClaimed = ZERO_BI
     userARECOverview.amountARECSolidied = ZERO_BI
-    userARECOverview.arecNFTListCertified = []
-    userARECOverview.climateBadgeList = []
+    // userARECOverview.arecNFTListCertified = []
+    // userARECOverview.climateBadgeList = []
     userARECOverview.save()
   }
   return userARECOverview
@@ -462,9 +462,9 @@ export function handleRECCertified(event: RECCertified): void {
   userARECOverview.numARECNFTCertified = userARECOverview.numARECNFTCertified + 1
   userARECOverview.amountARECNFTCertified = userARECOverview.amountARECNFTCertified.plus(recData.amountREC)
 
-  let arecNFTListCertified = userARECOverview.arecNFTListCertified
-  arecNFTListCertified.push(arecNFT.id)
-  userARECOverview.arecNFTListCertified = arecNFTListCertified
+  // let arecNFTListCertified = userARECOverview.arecNFTListCertified
+  // arecNFTListCertified.push(arecNFT.id)
+  // userARECOverview.arecNFTListCertified = arecNFTListCertified
 
   userARECOverview.save()
 

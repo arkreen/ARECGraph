@@ -50,9 +50,9 @@ export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): v
   userARECOverview.numClimateActionClaimed = userARECOverview.numClimateActionClaimed + arecBadgeInfo.offsetIds.length
   userARECOverview.amountARECOffsetClaimed = userARECOverview.amountARECOffsetClaimed.plus(arecBadgeInfo.offsetTotalAmount)
 
-  let climateBadgeList = userARECOverview.climateBadgeList
-  climateBadgeList.push(arecBadge.id)
-  userARECOverview.climateBadgeList = climateBadgeList
+  // let climateBadgeList = userARECOverview.climateBadgeList
+  // climateBadgeList.push(arecBadge.id)
+  // userARECOverview.climateBadgeList = climateBadgeList
 
   userARECOverview.save()
 }

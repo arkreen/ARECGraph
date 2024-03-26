@@ -199,8 +199,8 @@ export function handleSolidify(event: Solidify): void {
       userARECOverview.amountARECOffset = ZERO_BI
       userARECOverview.amountARECOffsetClaimed = ZERO_BI
       userARECOverview.amountARECSolidied = ZERO_BI
-      userARECOverview.arecNFTListCertified = []
-      userARECOverview.climateBadgeList = []
+      // userARECOverview.arecNFTListCertified = []
+      // userARECOverview.climateBadgeList = []
       userARECOverview.save()
   }
   userARECOverview.numARECNFTSolidified = userARECOverview.numARECNFTSolidified + event.params.numberAREC.toI32()

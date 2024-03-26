@@ -61,16 +61,16 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     greenBTCUser.won = ZERO_BI
     greenBTCUser.amountEnergy = ZERO_BI
     greenBTCUser.amountWonEnergy = ZERO_BI
-    greenBTCUser.greenBTCBlockList = []
+    // greenBTCUser.greenBTCBlockList = []
     greenBTCUser.save()
   }
 
   greenBTCUser.bought = greenBTCUser.bought.plus(ONE_BI)
   greenBTCUser.amountEnergy = greenBTCUser.amountEnergy.plus(event.params.ARTCount)
   
-  let greenBTCBlockList = greenBTCUser.greenBTCBlockList
-  greenBTCBlockList.push(greenBTCBlock.id)
-  greenBTCUser.greenBTCBlockList = greenBTCBlockList
+  // let greenBTCBlockList = greenBTCUser.greenBTCBlockList
+  // greenBTCBlockList.push(greenBTCBlock.id)
+  // greenBTCUser.greenBTCBlockList = greenBTCBlockList
 
   greenBTCUser.save()
 }
@@ -115,7 +115,7 @@ export function handleOpenBox(event: OpenBox): void {
     greenBTCUser.won = ZERO_BI
     greenBTCUser.amountEnergy = ZERO_BI
     greenBTCUser.amountWonEnergy = ZERO_BI
-    greenBTCUser.greenBTCBlockList = []
+    // greenBTCUser.greenBTCBlockList = []
     greenBTCUser.save()
   }
   greenBTCUser.opened = greenBTCUser.opened.plus(ONE_BI)
