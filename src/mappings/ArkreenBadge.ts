@@ -1,8 +1,8 @@
 /* eslint-disable prefer-const */
 import { Address } from '@graphprotocol/graph-ts'
 import { OffsetCertificateMinted, OffsetCertificateUpdated, OffsetAttached, ArkreenBadge } from '../types/ArkreenBadge/ArkreenBadge'
-import { ARECBadge, ClimateAction, ARECOverview, ARTOverview } from '../types/schema'
-import { ZERO_BI, ADDRESS_AREC_BADGE } from './ArkreenRECIssuance'
+import { ARECBadge, ClimateAction, ARECOverview, ARTOverview, UserARECOverview } from '../types/schema'
+import { ZERO_BI, ADDRESS_AREC_BADGE, updateARECSnapshort } from './ArkreenRECIssuance'
 
 // event OffsetCertificateMinted(uint256 tokenId)
 export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): void {
@@ -37,11 +37,24 @@ export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): v
   arecBadge.offsetActions = offsetActions
   arecBadge.save()
 
+  updateARECSnapshort(event.block.timestamp)
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numClimateBadge = arecOverview.numClimateBadge + 1
   arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + arecBadgeInfo.offsetIds.length
   arecOverview.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed.plus(arecBadgeInfo.offsetTotalAmount)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
+
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + arecBadgeInfo.offsetEntity.toHexString())!
+  userARECOverview.numClimateBadge = userARECOverview.numClimateBadge + 1
+  userARECOverview.numClimateActionClaimed = userARECOverview.numClimateActionClaimed + arecBadgeInfo.offsetIds.length
+  userARECOverview.amountARECOffsetClaimed = userARECOverview.amountARECOffsetClaimed.plus(arecBadgeInfo.offsetTotalAmount)
+
+  // let climateBadgeList = userARECOverview.climateBadgeList
+  // climateBadgeList.push(arecBadge.id)
+  // userARECOverview.climateBadgeList = climateBadgeList
+
+  userARECOverview.save()
 }
 
 // event OffsetCertificateUpdated(uint256 tokenId)
@@ -95,8 +108,16 @@ export function handleOffsetAttached(event: OffsetAttached): void {
   arecBadge.offsetTotalAmount = arecBadge.offsetTotalAmount.plus(offsetTotalAmountAttached)
   arecBadge.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + offsetIds.length
   arecOverview.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed.plus(offsetTotalAmountAttached)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
+
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + arecBadge.offsetEntity.toHexString())!
+  userARECOverview.numClimateActionClaimed = userARECOverview.numClimateActionClaimed + offsetIds.length
+  userARECOverview.amountARECOffsetClaimed = userARECOverview.amountARECOffsetClaimed.plus(offsetTotalAmountAttached)
+  userARECOverview.save()
 }

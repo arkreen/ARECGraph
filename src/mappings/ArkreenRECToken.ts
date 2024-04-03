@@ -1,10 +1,12 @@
 /* eslint-disable prefer-const */
 import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { ARECOverview,  ARTOverview, Token, ClimateAction, OffsetDetail, ARECNFT, SolidifyMint } from '../types/schema'
+import { UserARECOverview } from '../types/schema'
+
 import { OffsetFinished, Transfer, Solidify, OffsetFinished1 } from '../types/templates/ArkreenRECToken/ArkreenRECToken'
 import { ArkreenBadge } from '../types/templates/ArkreenRECToken/ArkreenBadge'
 
-import { ADDRESS_ZERO, ADDRESS_AREC_BADGE } from './ArkreenRECIssuance'
+import { ADDRESS_ZERO, ADDRESS_AREC_BADGE, updateARECSnapshort, ZERO_BI, checkUserARECOverview } from './ArkreenRECIssuance'
 
 export let FLAG_REDEEM_MULTI      = BigInt.fromUnsignedBytes(Bytes.fromHexString('0x00000000000000c0'))  // LSB First
 export let FLAG_REDEEM_MULTI_MASK = BigInt.fromUnsignedBytes(Bytes.fromHexString('0xffffffffffffff3f'))  // LSB First
@@ -72,10 +74,18 @@ export function handleOffsetFinished(event: OffsetFinished): void {
   artOverview.amountARTOffset = artOverview.amountARTOffset.plus(event.params.amount)
   artOverview.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.amountARECOffset = arecOverview.amountARECOffset.plus(event.params.amount)
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
+
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + actionInfo.offsetEntity.toHexString())
+  userARECOverview.amountARECOffset = userARECOverview.amountARECOffset.plus(event.params.amount)
+  userARECOverview.numClimateAction = userARECOverview.numClimateAction + 1 
+  userARECOverview.save()
 }
 
 // event OffsetFinished(address offsetEntity, uint256 amount, uint256 offsetId)
@@ -141,10 +151,18 @@ export function handleOffsetFinishedNoIndex(event: OffsetFinished1): void {
   artOverview.amountARTOffset = artOverview.amountARTOffset.plus(event.params.amount)
   artOverview.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.amountARECOffset = arecOverview.amountARECOffset.plus(event.params.amount)
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
+
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + actionInfo.offsetEntity.toHexString())
+  userARECOverview.amountARECOffset = userARECOverview.amountARECOffset.plus(event.params.amount)
+  userARECOverview.numClimateAction = userARECOverview.numClimateAction + 1 
+  userARECOverview.save()
 }
 
 // event Solidify(address indexed account, uint256 amount, uint256 numberAREC, uint256 feeSolidify);
@@ -154,9 +172,43 @@ export function handleSolidify(event: Solidify): void {
   artOverview.amountARTSolidied = artOverview.amountARTSolidied.plus(event.params.amount)
   artOverview.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTSolidified = arecOverview.numARECNFTSolidified + event.params.numberAREC.toI32()
   arecOverview.amountARECSolidied = arecOverview.amountARECSolidied.plus(event.params.amount)
+  arecOverview.lastBlockHeight = event.block.number
+  arecOverview.save()
+
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + event.params.account.toHexString())
+  if (userARECOverview === null) {                
+      userARECOverview = new UserARECOverview("USER_AREC_" + event.params.account.toHexString())
+      userARECOverview.numARECNFTMinted = 0
+      userARECOverview.numARECNFTCertified = 0
+      userARECOverview.numARECNFTRedeemed = 0
+      userARECOverview.numARECNFTLiquidized = 0
+      userARECOverview.numARECNFTRejected = 0
+      userARECOverview.numARECNFTCancelled = 0
+      userARECOverview.numARECNFTSolidified = 0
+      userARECOverview.numClimateAction = 0
+      userARECOverview.numClimateActionClaimed = 0
+      userARECOverview.numClimateBadge = 0
+      userARECOverview.amountARECNFTMinted = ZERO_BI
+      userARECOverview.amountARECNFTCertified = ZERO_BI
+      userARECOverview.amountARECNFTRedeemed = ZERO_BI
+      userARECOverview.amountARECNFTLiquidized = ZERO_BI
+      userARECOverview.amountARECNFTRejected = ZERO_BI
+      userARECOverview.amountARECNFTCancelled = ZERO_BI
+      userARECOverview.amountARECOffset = ZERO_BI
+      userARECOverview.amountARECOffsetClaimed = ZERO_BI
+      userARECOverview.amountARECSolidied = ZERO_BI
+      // userARECOverview.arecNFTListCertified = []
+      // userARECOverview.climateBadgeList = []
+      userARECOverview.save()
+  }
+  userARECOverview.numARECNFTSolidified = userARECOverview.numARECNFTSolidified + event.params.numberAREC.toI32()
+  userARECOverview.amountARECSolidied = userARECOverview.amountARECSolidied.plus(event.params.amount)
+  userARECOverview.save()
 
   let solidifyMint  = new SolidifyMint("Solidify_" + event.transaction.hash.toHexString() )
   solidifyMint.solidifier = event.params.account

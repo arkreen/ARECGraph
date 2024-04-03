@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import { BigInt, BigDecimal, log, Address, ethereum, Bytes } from '@graphprotocol/graph-ts'
-import { ARECOverview,  ARTOverview, ARECNFT, ClimateAction } from '../types/schema'
+import { ARECOverview,  ARTOverview, ARECNFT, ClimateAction, ARECSnapshort, UserARECOverview } from '../types/schema'
 import { AREC_ASSET, Token } from '../types/schema'
 
 import { ArkreenRECToken as ArkreenRECTokenTemplate } from '../types/templates'
@@ -37,6 +37,79 @@ export interface offsetActions {
   createdAt: BigInt;
   bClaimed: boolean;
 }
+enum RECStatus {
+  Pending,            // 0
+  Rejected,           // 1
+  Cancelled,          // 2
+  Certified,          // 3
+  Retired,            // 4
+  Liquidized          // 5
+}
+export function checkUserARECOverview(id: string): UserARECOverview  {
+  let userARECOverview = UserARECOverview.load(id)
+  if (userARECOverview === null) {
+    userARECOverview = new UserARECOverview(id)
+    userARECOverview.numARECNFTMinted = 0
+    userARECOverview.numARECNFTCertified = 0
+    userARECOverview.numARECNFTRedeemed = 0
+    userARECOverview.numARECNFTLiquidized = 0
+    userARECOverview.numARECNFTRejected = 0
+    userARECOverview.numARECNFTCancelled = 0
+    userARECOverview.numARECNFTSolidified = 0
+    userARECOverview.numClimateAction = 0
+    userARECOverview.numClimateActionClaimed = 0
+    userARECOverview.numClimateBadge = 0
+    userARECOverview.amountARECNFTMinted = ZERO_BI
+    userARECOverview.amountARECNFTCertified = ZERO_BI
+    userARECOverview.amountARECNFTRedeemed = ZERO_BI
+    userARECOverview.amountARECNFTLiquidized = ZERO_BI
+    userARECOverview.amountARECNFTRejected = ZERO_BI
+    userARECOverview.amountARECNFTCancelled = ZERO_BI
+    userARECOverview.amountARECOffset = ZERO_BI
+    userARECOverview.amountARECOffsetClaimed = ZERO_BI
+    userARECOverview.amountARECSolidied = ZERO_BI
+    // userARECOverview.arecNFTListCertified = []
+    // userARECOverview.climateBadgeList = []
+    userARECOverview.save()
+  }
+  return userARECOverview
+}
+
+export function updateARECSnapshort(blocktime: BigInt): void {
+  let arecOverview = ARECOverview.load("AREC_VIEW")
+  if (arecOverview === null) return
+
+  let timestamp = blocktime.toI32()
+  let dayID = timestamp / 86400
+  let dayStartTimestamp = dayID * 86400
+  if (dayStartTimestamp <= arecOverview.dayStartTimestamp) return;
+
+  let arecSnapshort = new ARECSnapshort(dayID.toString())
+  arecSnapshort.numARECNFTMinted = arecOverview.numARECNFTMinted
+  arecSnapshort.numARECNFTCertified = arecOverview.numARECNFTCertified
+  arecSnapshort.numARECNFTRedeemed = arecOverview.numARECNFTRedeemed
+  arecSnapshort.numARECNFTLiquidized = arecOverview.numARECNFTLiquidized
+  arecSnapshort.numARECNFTRejected = arecOverview.numARECNFTRejected
+  arecSnapshort.numARECNFTCancelled = arecOverview.numARECNFTCancelled
+  arecSnapshort.numARECNFTSolidified = arecOverview.numARECNFTSolidified
+  arecSnapshort.numClimateAction = arecOverview.numClimateAction
+  arecSnapshort.numClimateActionClaimed = arecOverview.numClimateActionClaimed
+  arecSnapshort.numClimateBadge = arecOverview.numClimateBadge
+  arecSnapshort.amountARECNFTMinted = arecOverview.amountARECNFTMinted
+  arecSnapshort.amountARECNFTCertified = arecOverview.amountARECNFTCertified
+  arecSnapshort.amountARECNFTRedeemed = arecOverview.amountARECNFTRedeemed
+  arecSnapshort.amountARECNFTLiquidized = arecOverview.amountARECNFTLiquidized
+  arecSnapshort.amountARECNFTRejected = arecOverview.amountARECNFTRejected
+  arecSnapshort.amountARECNFTCancelled = arecOverview.amountARECNFTCancelled
+  arecSnapshort.amountARECOffset = arecOverview.amountARECOffset
+  arecSnapshort.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed
+  arecSnapshort.amountARECSolidied = arecOverview.amountARECSolidied
+  arecSnapshort.save()
+
+  arecOverview.dayStartTimestamp = dayStartTimestamp
+  arecOverview.save()
+}
+
 
 // event RECRequested(address owner, uint256 tokenId)
 export function handleRECRequested(event: RECRequested): void {
@@ -93,10 +166,14 @@ export function handleRECRequested(event: RECRequested): void {
       paymentToken.save()
     }
   }
+
+  updateARECSnapshort(event.block.timestamp)
   
   let arecOverview = ARECOverview.load("AREC_VIEW")
   if (arecOverview === null) {
     arecOverview = new ARECOverview("AREC_VIEW")
+    arecOverview.lastBlockHeight = event.block.number
+    arecOverview.dayStartTimestamp = 0
     arecOverview.numARECNFTMinted = 0
     arecOverview.numARECNFTCertified = 0
     arecOverview.numARECNFTRedeemed = 0
@@ -158,6 +235,7 @@ export function handleRECRequested(event: RECRequested): void {
 
   let NFTID = event.params.tokenId.toString()
   let arecNFT = new ARECNFT("AREC_NFT_" + NFTID.padStart(6,'0'))
+  arecNFT.lastBlockHeight = event.block.number
   arecNFT.hashTx = event.transaction.hash
   arecNFT.artInfo = artOverview.id
   arecNFT.timeMinted = event.block.timestamp.toI32()
@@ -178,6 +256,11 @@ export function handleRECRequested(event: RECRequested): void {
   arecNFT.url = recData.url
   arecNFT.status = recData.status
   arecNFT.save()
+
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + recData.minter.toHexString())
+  userARECOverview.numARECNFTMinted = userARECOverview.numARECNFTMinted +1
+  userARECOverview.amountARECNFTMinted = userARECOverview.amountARECNFTMinted.plus(recData.amountREC)
+  userARECOverview.save()
 
   artOverview.numNFTMinted = artOverview.numNFTMinted + 1
   artOverview.amountNFTMinted = artOverview.amountNFTMinted.plus(recData.amountREC)
@@ -252,9 +335,13 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
     }
   }
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")
   if (arecOverview === null) {
     arecOverview = new ARECOverview("AREC_VIEW")
+    arecOverview.lastBlockHeight = event.block.number
+    arecOverview.dayStartTimestamp = 0
     arecOverview.numARECNFTMinted = 0
     arecOverview.numARECNFTCertified = 0
     arecOverview.numARECNFTRedeemed = 0
@@ -312,6 +399,7 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
 
   let NFTID = event.params.tokenId.toString()
   let arecNFT = new ARECNFT("AREC_NFT_" + NFTID.padStart(6,'0'))
+  arecNFT.lastBlockHeight = event.block.number
   arecNFT.hashTx = event.transaction.hash
   arecNFT.artInfo = artOverview.id
   arecNFT.timeMinted = event.block.timestamp.toI32()
@@ -333,6 +421,11 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
   arecNFT.status = recData.status
   arecNFT.save()
 
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + recData.minter.toHexString())
+  userARECOverview.numARECNFTMinted = userARECOverview.numARECNFTMinted +1
+  userARECOverview.amountARECNFTMinted = userARECOverview.amountARECNFTMinted.plus(recData.amountREC)
+  userARECOverview.save()
+
   artOverview.numNFTMinted = artOverview.numNFTMinted + 1
   artOverview.amountNFTMinted = artOverview.amountNFTMinted.plus(recData.amountREC)
   artOverview.save()
@@ -351,6 +444,7 @@ export function handleRECCertified(event: RECCertified): void {
   let NFTID = event.params.tokenId.toString()
   let arecNFT = ARECNFT.load("AREC_NFT_" + NFTID.padStart(6,'0'))!
 
+  arecNFT.lastBlockHeight = event.block.number
   arecNFT.timeCertified = event.block.timestamp.toI32()
   arecNFT.serialNumber = recData.serialNumber
   arecNFT.startTime = recData.startTime.toI32()
@@ -366,9 +460,22 @@ export function handleRECCertified(event: RECCertified): void {
   artOverview.amountNFTCertified = artOverview.amountNFTCertified.plus(recData.amountREC)
   artOverview.save()
 
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + recData.minter.toHexString())!
+  userARECOverview.numARECNFTCertified = userARECOverview.numARECNFTCertified + 1
+  userARECOverview.amountARECNFTCertified = userARECOverview.amountARECNFTCertified.plus(recData.amountREC)
+
+  // let arecNFTListCertified = userARECOverview.arecNFTListCertified
+  // arecNFTListCertified.push(arecNFT.id)
+  // userARECOverview.arecNFTListCertified = arecNFTListCertified
+
+  userARECOverview.save()
+
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTCertified = arecOverview.numARECNFTCertified +1 
   arecOverview.amountARECNFTCertified = arecOverview.amountARECNFTCertified.plus(recData.amountREC)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
 }
 
@@ -380,6 +487,7 @@ export function handleRedeemFinished(event: RedeemFinished): void {
   let NFTID = event.params.tokenId.toString()
   let arecNFT = ARECNFT.load("AREC_NFT_" + NFTID.padStart(6,'0'))!
 
+  arecNFT.lastBlockHeight = event.block.number
   arecNFT.timeRedeemed = event.block.timestamp.toI32()
   arecNFT.amountRECRetired = arecNFT.amountREC
   arecNFT.status = recData.status
@@ -428,11 +536,21 @@ export function handleRedeemFinished(event: RedeemFinished): void {
   artOverview.amountNFTRedeemed = artOverview.amountNFTRedeemed.plus(recData.amountREC)
   artOverview.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTRedeemed = arecOverview.numARECNFTRedeemed + 1 
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
   arecOverview.amountARECNFTRedeemed = arecOverview.amountARECNFTRedeemed.plus(recData.amountREC)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
+
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + event.params.redeemEntity.toHexString())!
+
+  userARECOverview.numARECNFTRedeemed = arecOverview.numARECNFTRedeemed + 1 
+  userARECOverview.numClimateAction = arecOverview.numClimateAction + 1 
+  userARECOverview.amountARECNFTRedeemed = arecOverview.amountARECNFTRedeemed.plus(recData.amountREC)
+  userARECOverview.save()
 }
 
 // event RECLiquidized(address owner, uint256 tokenId, uint256 amountREC)
@@ -443,6 +561,7 @@ export function handleRECLiquidized(event: RECLiquidized): void {
   let NFTID = event.params.tokenId.toString()
   let arecNFT = ARECNFT.load("AREC_NFT_" + NFTID.padStart(6,'0'))!
 
+  arecNFT.lastBlockHeight = event.block.number
   arecNFT.timeLiquidized = event.block.timestamp.toI32()
   arecNFT.status = recData.status
   arecNFT.save()
@@ -452,10 +571,19 @@ export function handleRECLiquidized(event: RECLiquidized): void {
   artOverview.amountNFTLiquidized = artOverview.amountNFTLiquidized.plus(recData.amountREC)
   artOverview.save()
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTLiquidized = arecOverview.numARECNFTLiquidized +1 
   arecOverview.amountARECNFTLiquidized = arecOverview.amountARECNFTLiquidized.plus(recData.amountREC)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
+
+   // May get the AREC NFT by transfer
+  let userARECOverview = checkUserARECOverview("USER_AREC_" + recData.minter.toHexString())
+  userARECOverview.numARECNFTLiquidized = userARECOverview.numARECNFTLiquidized + 1
+  userARECOverview.amountARECNFTLiquidized = userARECOverview.amountARECNFTLiquidized.minus(recData.amountREC)
+  userARECOverview.save()
 }
 
 // event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
@@ -463,17 +591,19 @@ export function handleTransfer(event: Transfer): void {
   if (event.params.from.toHexString() != ADDRESS_ZERO) {
     let NFTID = event.params.tokenId.toString()
     let arecNFT = ARECNFT.load("AREC_NFT_" + NFTID.padStart(6,'0'))!
+    arecNFT.lastBlockHeight = event.block.number
     arecNFT.owner = event.params.to
     arecNFT.save()
   }
 
   let artOverview = ARTOverview.load(event.params.from.toHexString())
-  if((artOverview !== null) && (event.params.to.toHexString() == ADDRESS_ISSUANCE)) {
+  if((artOverview !== null) && (event.params.to.toHexString() != ADDRESS_AREC_BADGE)) {         // Solidify
     let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
     let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
 
     let NFTID = event.params.tokenId.toString()
     let arecNFT = ARECNFT.load("AREC_NFT_" + NFTID.padStart(6,'0'))!
+    arecNFT.lastBlockHeight = event.block.number
     arecNFT.status = recData.status
     arecNFT.owner = event.params.to
     arecNFT.save()
@@ -485,33 +615,40 @@ export function handleRECRejected(event: RECRejected): void {
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
   let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
 
   arecOverview.numARECNFTRejected = arecOverview.numARECNFTRejected + 1 
   arecOverview.amountARECNFTRejected = arecOverview.amountARECNFTRejected.plus(recData.amountREC)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
 
-  log.info(" tokenId: {}", [event.params.tokenId.toString()])
   let NFTID = event.params.tokenId.toString()
   let arecNFT = ARECNFT.load("AREC_NFT_" + NFTID.padStart(6,'0'))!
 
+  arecNFT.lastBlockHeight = event.block.number
   arecNFT.timeRejected = event.block.timestamp.toI32()
   arecNFT.status = recData.status
   arecNFT.save()
 
-  log.info(" artInfo: {}", [arecNFT.artInfo])
   let artOverview = ARTOverview.load(arecNFT.artInfo)!
   artOverview.numNFTRejected = artOverview.numNFTRejected + 1
   artOverview.amountNFTRejected = artOverview.amountNFTRejected.plus(recData.amountREC)
   artOverview.save()
   
-  log.info(" numNFTRejected,amountNFTRejected: {}, {}", [artOverview.numNFTRejected.toString(), artOverview.amountNFTRejected.toString()])
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + recData.minter.toHexString())!
+  userARECOverview.numARECNFTRejected = userARECOverview.numARECNFTRejected + 1
+  userARECOverview.amountARECNFTRejected = userARECOverview.amountARECNFTRejected.plus(recData.amountREC)
+  userARECOverview.save()
 }
 
 // event RECCanceled(address owner, uint256 tokenId)
 export function handleRECCanceled(event: RECCanceled): void {
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
   let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
+
+  updateARECSnapshort(event.block.timestamp)
 
   let arecOverview = ARECOverview.load("AREC_VIEW")!
 
@@ -520,11 +657,13 @@ export function handleRECCanceled(event: RECCanceled): void {
 
   arecOverview.numARECNFTRejected = arecOverview.numARECNFTRejected - 1
   arecOverview.amountARECNFTRejected = arecOverview.amountARECNFTRejected.minus(recData.amountREC)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
 
   let NFTID = event.params.tokenId.toString()
   let arecNFT = ARECNFT.load("AREC_NFT_" + NFTID.padStart(6,'0'))!
 
+  arecNFT.lastBlockHeight = event.block.number
   arecNFT.timeCancelled = event.block.timestamp.toI32()
   arecNFT.status = recData.status
   arecNFT.save()
@@ -537,6 +676,13 @@ export function handleRECCanceled(event: RECCanceled): void {
   artOverview.amountNFTRejected = artOverview.amountNFTRejected.minus(recData.amountREC)
   
   artOverview.save()
+
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + recData.minter.toHexString())!
+  userARECOverview.numARECNFTCancelled = userARECOverview.numARECNFTCancelled + 1
+  userARECOverview.numARECNFTRejected = userARECOverview.numARECNFTRejected - 1
+  userARECOverview.amountARECNFTCancelled = userARECOverview.amountARECNFTCancelled.plus(recData.amountREC)
+  userARECOverview.amountARECNFTRejected = userARECOverview.amountARECNFTRejected.minus(recData.amountREC)
+  userARECOverview.save()
 }
 
 // event RECDataUpdated(address owner, uint256 tokenId)
@@ -544,15 +690,19 @@ export function handleRECDataUpdated(event: RECDataUpdated): void {
   let arkreenRECIssuance = ArkreenRECIssuance.bind(Address.fromString(ADDRESS_ISSUANCE))
   let recData = arkreenRECIssuance.getRECData(event.params.tokenId)
 
+  updateARECSnapshort(event.block.timestamp)
+
   let arecOverview = ARECOverview.load("AREC_VIEW")!
 
   arecOverview.numARECNFTRejected = arecOverview.numARECNFTRejected - 1
   arecOverview.amountARECNFTRejected = arecOverview.amountARECNFTRejected.minus(recData.amountREC)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
 
   let NFTID = event.params.tokenId.toString()
   let arecNFT = ARECNFT.load("AREC_NFT_" + NFTID.padStart(6,'0'))!
 
+  arecNFT.lastBlockHeight = event.block.number
   arecNFT.region = recData.region;                            // Null string is not checked, as it could be set to null
   arecNFT.url = recData.url;
   arecNFT.status = recData.status
@@ -562,4 +712,9 @@ export function handleRECDataUpdated(event: RECDataUpdated): void {
   artOverview.numNFTRejected = artOverview.numNFTRejected - 1
   artOverview.amountNFTRejected = artOverview.amountNFTRejected.minus(recData.amountREC)
   artOverview.save()
+
+  let userARECOverview = UserARECOverview.load("USER_AREC_" + recData.minter.toHexString())!
+  userARECOverview.numARECNFTRejected = userARECOverview.numARECNFTRejected - 1
+  userARECOverview.amountARECNFTRejected = userARECOverview.amountARECNFTRejected.minus(recData.amountREC)
+  userARECOverview.save()
 }
