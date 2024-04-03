@@ -13,6 +13,7 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   let greenBTC = GreenBTC.load("GREEN_BTC")
   if (greenBTC === null) {
     greenBTC = new GreenBTC("GREEN_BTC")
+    greenBTC.lastBlockHeight = event.block.number
     greenBTC.bought = ZERO_BI
     greenBTC.opened = ZERO_BI
     greenBTC.revealed = ZERO_BI
@@ -22,6 +23,7 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     greenBTC.save()
   }
 
+  greenBTC.lastBlockHeight = event.block.number
   greenBTC.bought = greenBTC.bought.plus(ONE_BI)
   greenBTC.amountEnergy = greenBTC.amountEnergy.plus(event.params.ARTCount)
   greenBTC.save()
@@ -29,10 +31,11 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.height.toString().padStart(8,'0'))
   if (greenBTCBlock === null) {
     greenBTCBlock = new GreenBTCBlock("GREENBTC_BLOCK_"+ event.params.height.toString().padStart(8,'0'))
+    greenBTCBlock.lastBlockHeight = event.block.number
     greenBTCBlock.heightBTC = event.params.height
     greenBTCBlock.amountEnergy = event.params.ARTCount
     greenBTCBlock.indexBuy = greenBTC.bought
-    greenBTCBlock.buyTimestamp = event.block.timestamp
+    greenBTCBlock.buyTimestamp = event.block.number
     greenBTCBlock.openTimestamp = ZERO_BI
     greenBTCBlock.buyTxHash = event.transaction.hash
     greenBTCBlock.opener = Bytes.fromHexString(ADDRESS_ZERO)
@@ -44,6 +47,7 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     greenBTCBlock.status = "Sold"                // sold
     greenBTCBlock.save()
   } else {                                        // For event OpenBox first
+    greenBTCBlock.lastBlockHeight = event.block.number
     greenBTCBlock.amountEnergy = event.params.ARTCount
     greenBTCBlock.indexBuy = greenBTC.bought
     greenBTCBlock.minter = event.params.minter
@@ -55,23 +59,28 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   let greenBTCUser = GreenBTCUser.load("GREENBTC_USER_" + event.params.minter.toHexString())
   if (greenBTCUser === null) {
     greenBTCUser = new GreenBTCUser("GREENBTC_USER_" + event.params.minter.toHexString())
+    greenBTCUser.lastBlockHeight = event.block.number
+    greenBTCUser.balanceGBC = ZERO_BI
     greenBTCUser.bought = ZERO_BI
     greenBTCUser.opened = ZERO_BI
     greenBTCUser.revealed = ZERO_BI
     greenBTCUser.won = ZERO_BI
     greenBTCUser.amountEnergy = ZERO_BI
+    greenBTCUser.amountBoughtEnergy = ZERO_BI
     greenBTCUser.amountWonEnergy = ZERO_BI
     // greenBTCUser.greenBTCBlockList = []
     greenBTCUser.save()
   }
 
   greenBTCUser.bought = greenBTCUser.bought.plus(ONE_BI)
+  greenBTCUser.amountBoughtEnergy = greenBTCUser.amountBoughtEnergy.plus(event.params.ARTCount)
+  greenBTCUser.balanceGBC = greenBTCUser.balanceGBC.plus(ONE_BI)
   greenBTCUser.amountEnergy = greenBTCUser.amountEnergy.plus(event.params.ARTCount)
   
   // let greenBTCBlockList = greenBTCUser.greenBTCBlockList
   // greenBTCBlockList.push(greenBTCBlock.id)
   // greenBTCUser.greenBTCBlockList = greenBTCBlockList
-
+  greenBTCUser.lastBlockHeight = event.block.number
   greenBTCUser.save()
 }
 
@@ -80,11 +89,12 @@ export function handleOpenBox(event: OpenBox): void {
   let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.tokenID.toString().padStart(8,'0'))
   if (greenBTCBlock === null) {                 // For event OpenBox first
     greenBTCBlock = new GreenBTCBlock("GREENBTC_BLOCK_"+ event.params.tokenID.toString().padStart(8,'0'))
+    greenBTCBlock.lastBlockHeight = event.block.number
     greenBTCBlock.heightBTC = event.params.tokenID
     greenBTCBlock.amountEnergy = ZERO_BI
     greenBTCBlock.indexBuy = ZERO_BI
-    greenBTCBlock.buyTimestamp = event.block.timestamp
-    greenBTCBlock.openTimestamp = event.block.timestamp
+    greenBTCBlock.buyTimestamp = event.block.number
+    greenBTCBlock.openTimestamp = event.block.number
     greenBTCBlock.buyTxHash = event.transaction.hash
     greenBTCBlock.opener = event.params.opener
     greenBTCBlock.openBlockHeight = event.params.blockNumber
@@ -95,29 +105,34 @@ export function handleOpenBox(event: OpenBox): void {
     greenBTCBlock.status = "Opened"              // opened
     greenBTCBlock.save()
   } else {
+    greenBTCBlock.lastBlockHeight = event.block.number
     greenBTCBlock.opener = event.params.opener
     greenBTCBlock.openBlockHeight = event.params.blockNumber
-    greenBTCBlock.openTimestamp = event.block.timestamp
+    greenBTCBlock.openTimestamp = event.block.number
     greenBTCBlock.status = "Opened"              // opened
     greenBTCBlock.save()
   }
 
   let greenBTC = GreenBTC.load("GREEN_BTC")!
+  greenBTC.lastBlockHeight = event.block.number
   greenBTC.opened = greenBTC.opened.plus(ONE_BI)
   greenBTC.save()
 
   let greenBTCUser = GreenBTCUser.load("GREENBTC_USER_" + event.params.opener.toHexString())
   if (greenBTCUser === null) {
     greenBTCUser = new GreenBTCUser("GREENBTC_USER_" + event.params.opener.toHexString())
+    greenBTCUser.lastBlockHeight = event.block.number
     greenBTCUser.bought = ZERO_BI
     greenBTCUser.opened = ZERO_BI
     greenBTCUser.revealed = ZERO_BI
     greenBTCUser.won = ZERO_BI
     greenBTCUser.amountEnergy = ZERO_BI
+    greenBTCUser.amountBoughtEnergy = ZERO_BI
     greenBTCUser.amountWonEnergy = ZERO_BI
     // greenBTCUser.greenBTCBlockList = []
     greenBTCUser.save()
   }
+  greenBTCUser.lastBlockHeight = event.block.number
   greenBTCUser.opened = greenBTCUser.opened.plus(ONE_BI)
   greenBTCUser.save()
 }
@@ -136,6 +151,7 @@ export function handleRevealBoxes(event: RevealBoxes): void {
     let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
     let dataNFT = greenBTCContract.dataNFT(revealList[index])
 
+    greenBTCBlock.lastBlockHeight = event.block.number
     greenBTCBlock.seed = dataNFT.value5.toHexString()                         // retrieve seed
     greenBTCBlock.status = wonList[index] ? "Lucky" : "Revealed"              
     greenBTCBlock.save() 
@@ -145,17 +161,19 @@ export function handleRevealBoxes(event: RevealBoxes): void {
       greenBTC.amountWonEnergy = greenBTC.amountWonEnergy.plus(greenBTCBlock.amountEnergy)
     }
 
-    let greenBTCUser = GreenBTCUser.load("GREENBTC_USER_" + greenBTCBlock.minter.toHexString())!
+    let greenBTCUser = GreenBTCUser.load("GREENBTC_USER_" + greenBTCBlock.opener.toHexString())!
 
     greenBTCUser.revealed = greenBTCUser.revealed.plus(ONE_BI)
     if (wonList[index]) {
       greenBTCUser.won = greenBTCUser.won.plus(ONE_BI)
       greenBTCUser.amountWonEnergy = greenBTCUser.amountWonEnergy.plus(greenBTCBlock.amountEnergy)
     }
+    greenBTCUser.lastBlockHeight = event.block.number
     greenBTCUser.save()
 
    }
 
+  greenBTC.lastBlockHeight = event.block.number
   greenBTC.revealed = greenBTC.revealed.plus(BigInt.fromI32(revealList.length))
   greenBTC.save()
 }
@@ -165,7 +183,49 @@ export function handleTransfer(event: Transfer): void {
 
   if (event.params.from.toHexString() != ADDRESS_ZERO) {
     let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.tokenId.toString().padStart(8,'0'))!
+    greenBTCBlock.lastBlockHeight = event.block.number
     greenBTCBlock.owner = event.params.to
     greenBTCBlock.save()
+
+    let greenBTCUserFrom = GreenBTCUser.load("GREENBTC_USER_" + event.params.from.toHexString())!
+
+    let greenBTCUserTo = GreenBTCUser.load("GREENBTC_USER_" + event.params.to.toHexString())
+    if (greenBTCUserTo === null) {
+      greenBTCUserTo = new GreenBTCUser("GREENBTC_USER_" + event.params.to.toHexString())
+      greenBTCUserTo.lastBlockHeight = event.block.number
+      greenBTCUserTo.balanceGBC = ZERO_BI
+      greenBTCUserTo.bought = ZERO_BI
+      greenBTCUserTo.opened = ZERO_BI
+      greenBTCUserTo.revealed = ZERO_BI
+      greenBTCUserTo.won = ZERO_BI
+      greenBTCUserTo.amountEnergy = ZERO_BI
+      greenBTCUserTo.amountBoughtEnergy = ZERO_BI
+      greenBTCUserTo.amountWonEnergy = ZERO_BI
+      greenBTCUserTo.save()
+    }
+
+    greenBTCUserFrom.balanceGBC = greenBTCUserFrom.balanceGBC.minus(ONE_BI)
+    greenBTCUserTo.balanceGBC = greenBTCUserTo.balanceGBC.plus(ONE_BI)
+
+    greenBTCUserFrom.amountEnergy =  greenBTCUserFrom.amountEnergy.minus(greenBTCBlock.amountEnergy)
+    greenBTCUserTo.amountEnergy =  greenBTCUserTo.amountEnergy.plus(greenBTCBlock.amountEnergy)
+    
+    if (greenBTCBlock.status == "Lucky") {
+      greenBTCUserFrom.won =  greenBTCUserFrom.won.minus(ONE_BI)
+      greenBTCUserFrom.amountWonEnergy =  greenBTCUserFrom.amountWonEnergy.minus(greenBTCBlock.amountEnergy)
+
+      greenBTCUserTo.won =  greenBTCUserTo.won.plus(ONE_BI)
+      greenBTCUserTo.amountWonEnergy =  greenBTCUserTo.amountWonEnergy.plus(greenBTCBlock.amountEnergy)
+    }
+
+    greenBTCUserFrom.lastBlockHeight = event.block.number
+    greenBTCUserFrom.save()
+
+    greenBTCUserTo.lastBlockHeight = event.block.number
+    greenBTCUserTo.save()
+
+    let greenBTC = GreenBTC.load("GREEN_BTC")!
+    greenBTC.lastBlockHeight = event.block.number
+    greenBTC.save()
   }
 }

@@ -15,6 +15,7 @@ type tAKREHolder @entity {
 
 type ARECOverview @entity {
   id:                         ID!
+  lastBlockHeight:            BigInt!
   dayStartTimestamp:          Int!
   numARECNFTMinted:           Int!
   numARECNFTCertified:        Int!
@@ -109,6 +110,7 @@ type UserARECOverview @entity {
 
 type ARECNFT @entity {
   id:                         ID!
+  lastBlockHeight:            BigInt! 
   hashTx:                     Bytes!
   artInfo:                    ARTOverview!
   timeMinted:                 Int!
@@ -189,6 +191,7 @@ type OffsetDetail @entity {
 
 type GreenBTC @entity {
   id:                     ID!
+  lastBlockHeight:        BigInt! 
   bought:                 BigInt!
   opened:                 BigInt!
   revealed:               BigInt!
@@ -199,6 +202,7 @@ type GreenBTC @entity {
 
 type GreenBTCBlock @entity {
   id:                   ID!
+  lastBlockHeight:      BigInt! 
   heightBTC:            BigInt!
   amountEnergy:         BigInt!
   indexBuy:             BigInt!
@@ -216,10 +220,13 @@ type GreenBTCBlock @entity {
 
 type GreenBTCUser @entity {
   id:                   ID!
+  lastBlockHeight:      BigInt! 
+  balanceGBC:           BigInt!
   bought:               BigInt!
   opened:               BigInt!
   revealed:             BigInt!
   won:                  BigInt!
   amountEnergy:         BigInt!
+  amountBoughtEnergy:   BigInt!
   amountWonEnergy:      BigInt!
 }

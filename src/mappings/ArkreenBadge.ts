@@ -43,6 +43,7 @@ export function handleOffsetCertificateMinted(event: OffsetCertificateMinted): v
   arecOverview.numClimateBadge = arecOverview.numClimateBadge + 1
   arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + arecBadgeInfo.offsetIds.length
   arecOverview.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed.plus(arecBadgeInfo.offsetTotalAmount)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
 
   let userARECOverview = UserARECOverview.load("USER_AREC_" + arecBadgeInfo.offsetEntity.toHexString())!
@@ -113,6 +114,7 @@ export function handleOffsetAttached(event: OffsetAttached): void {
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numClimateActionClaimed = arecOverview.numClimateActionClaimed + offsetIds.length
   arecOverview.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed.plus(offsetTotalAmountAttached)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
 
   let userARECOverview = UserARECOverview.load("USER_AREC_" + arecBadge.offsetEntity.toHexString())!

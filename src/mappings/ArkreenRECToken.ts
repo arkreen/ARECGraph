@@ -79,6 +79,7 @@ export function handleOffsetFinished(event: OffsetFinished): void {
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.amountARECOffset = arecOverview.amountARECOffset.plus(event.params.amount)
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
   
   let userARECOverview = checkUserARECOverview("USER_AREC_" + actionInfo.offsetEntity.toHexString())
@@ -155,6 +156,7 @@ export function handleOffsetFinishedNoIndex(event: OffsetFinished1): void {
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.amountARECOffset = arecOverview.amountARECOffset.plus(event.params.amount)
   arecOverview.numClimateAction = arecOverview.numClimateAction + 1 
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
 
   let userARECOverview = checkUserARECOverview("USER_AREC_" + actionInfo.offsetEntity.toHexString())
@@ -175,6 +177,7 @@ export function handleSolidify(event: Solidify): void {
   let arecOverview = ARECOverview.load("AREC_VIEW")!
   arecOverview.numARECNFTSolidified = arecOverview.numARECNFTSolidified + event.params.numberAREC.toI32()
   arecOverview.amountARECSolidied = arecOverview.amountARECSolidied.plus(event.params.amount)
+  arecOverview.lastBlockHeight = event.block.number
   arecOverview.save()
 
   let userARECOverview = checkUserARECOverview("USER_AREC_" + event.params.account.toHexString())
