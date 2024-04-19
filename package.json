@@ -10,7 +10,8 @@
     "deploy:celo": "npx graph deploy --product hosted-service lu-derik/arec-port-celo",
     "deploy:matic": "npx graph deploy --product hosted-service lu-derik/arec-port-matic",
     "deploy:celo-mainnet": "npx graph deploy --product hosted-service lu-derik/arec-port-celo-mainnet",
-    "deploy:studio:matic": "npx graph deploy --studio arec-graph"
+    "deploy:studio:matic": "npx graph deploy --studio arec-graph",
+    "deploy:studio:greenbtc:matic": "npx graph deploy --studio greenbtc"
   },
   "devDependencies": {
     "@graphprotocol/graph-cli": "^0.61.0",
