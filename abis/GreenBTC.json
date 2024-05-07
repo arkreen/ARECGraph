@@ -585,110 +585,6 @@
           "type": "tuple"
         },
         {
-          "internalType": "address",
-          "name": "tokenART",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "authMintGreenBTCWithARTOpen",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "uint128",
-              "name": "height",
-              "type": "uint128"
-            },
-            {
-              "internalType": "uint128",
-              "name": "ARTCount",
-              "type": "uint128"
-            },
-            {
-              "internalType": "address",
-              "name": "minter",
-              "type": "address"
-            },
-            {
-              "internalType": "uint8",
-              "name": "greenType",
-              "type": "uint8"
-            },
-            {
-              "internalType": "string",
-              "name": "blockTime",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "energyStr",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct GreenBTCInfo",
-          "name": "gbtc",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint8",
-              "name": "v",
-              "type": "uint8"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "r",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "s",
-              "type": "bytes32"
-            }
-          ],
-          "internalType": "struct Sig",
-          "name": "sig",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "beneficiary",
-              "type": "address"
-            },
-            {
-              "internalType": "string",
-              "name": "offsetEntityID",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "beneficiaryID",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "offsetMessage",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct BadgeInfo",
-          "name": "badgeInfo",
-          "type": "tuple"
-        },
-        {
           "components": [
             {
               "internalType": "address",
@@ -921,122 +817,6 @@
           "type": "tuple"
         },
         {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "token",
-              "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
-            }
-          ],
-          "internalType": "struct PayInfo",
-          "name": "payInfo",
-          "type": "tuple"
-        },
-        {
-          "internalType": "uint256",
-          "name": "deadline",
-          "type": "uint256"
-        }
-      ],
-      "name": "authMintGreenBTCWithApproveOpen",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "components": [
-            {
-              "internalType": "uint128",
-              "name": "height",
-              "type": "uint128"
-            },
-            {
-              "internalType": "uint128",
-              "name": "ARTCount",
-              "type": "uint128"
-            },
-            {
-              "internalType": "address",
-              "name": "minter",
-              "type": "address"
-            },
-            {
-              "internalType": "uint8",
-              "name": "greenType",
-              "type": "uint8"
-            },
-            {
-              "internalType": "string",
-              "name": "blockTime",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "energyStr",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct GreenBTCInfo",
-          "name": "gbtc",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "uint8",
-              "name": "v",
-              "type": "uint8"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "r",
-              "type": "bytes32"
-            },
-            {
-              "internalType": "bytes32",
-              "name": "s",
-              "type": "bytes32"
-            }
-          ],
-          "internalType": "struct Sig",
-          "name": "sig",
-          "type": "tuple"
-        },
-        {
-          "components": [
-            {
-              "internalType": "address",
-              "name": "beneficiary",
-              "type": "address"
-            },
-            {
-              "internalType": "string",
-              "name": "offsetEntityID",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "beneficiaryID",
-              "type": "string"
-            },
-            {
-              "internalType": "string",
-              "name": "offsetMessage",
-              "type": "string"
-            }
-          ],
-          "internalType": "struct BadgeInfo",
-          "name": "badgeInfo",
-          "type": "tuple"
-        },
-        {
           "internalType": "uint256",
           "name": "deadline",
           "type": "uint256"
@@ -1159,6 +939,11 @@
           "type": "bool"
         },
         {
+          "internalType": "uint8",
+          "name": "ratioSubsidy",
+          "type": "uint8"
+        },
+        {
           "internalType": "uint256",
           "name": "seed",
           "type": "uint256"
@@ -1213,6 +998,19 @@
     },
     {
       "inputs": [],
+      "name": "getOpeningOvertimed",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "getOvertimeBoxList",
       "outputs": [
         {
@@ -1260,6 +1058,19 @@
           "internalType": "uint128",
           "name": "received",
           "type": "uint128"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "greenBTCPro",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
         }
       ],
       "stateMutability": "view",
@@ -1417,6 +1228,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "normalRevealCap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -1427,6 +1251,19 @@
       "name": "openBox",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "overtimeRevealCap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -1469,6 +1306,32 @@
           "internalType": "bytes32",
           "name": "",
           "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ratioSubsidyCap",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "removeRevealCap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -1605,6 +1468,19 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "newGreenBTCPro",
+          "type": "address"
+        }
+      ],
+      "name": "setGreenBTCPro",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "newImageContract",
           "type": "address"
         }
@@ -1636,6 +1512,42 @@
         }
       ],
       "name": "setManager",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "newNormalCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newOvertimeCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newRemoveCap",
+          "type": "uint256"
+        }
+      ],
+      "name": "setNewCaps",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "newRatioSubsidyCap",
+          "type": "uint256"
+        }
+      ],
+      "name": "setRatioSubsidyCap",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

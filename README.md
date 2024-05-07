@@ -23,6 +23,9 @@ For Polygon Mummai Testnet:
 `npx graph deploy --product hosted-service lu-derik/greenbtc-mumbai-dev`
 `npx graph deploy --studio greenbtc-mumbai-dev`
 
+For Polygon Amoy Testnet:
+`npx graph deploy --studio greenbtcamoy`
+
 For Polygon Mainnet:
 `npx graph deploy --product hosted-service lu-derik/arec-graph`
 `npx graph deploy --studio arec-graph`

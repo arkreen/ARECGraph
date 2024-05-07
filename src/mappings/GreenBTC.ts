@@ -5,7 +5,7 @@ import { GreenBitCoin, OpenBox, RevealBoxes, Transfer, GreenBTC as GreenBTCContr
 import { GreenBTC, GreenBTCBlock, GreenBTCUser } from '../types/schema'
 import { ONE_BI, ZERO_BI, ADDRESS_ZERO } from './helpers'
 
-const ADDRESS_GREENTBTC = '0x770cb90378cb59665bbf623a72b90f427701c825'
+const ADDRESS_GREENTBTC = '0x2Bb79dB8b6149F7499CA1bA7eeBE9E736be4dBA9'
 
 // event GreenBitCoin(uint256 height, uint256 ARTCount, address minter, uint8 greenType)
 export function handleGreenBitCoin(event: GreenBitCoin): void {
@@ -20,12 +20,28 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     greenBTC.won = ZERO_BI
     greenBTC.amountEnergy = ZERO_BI
     greenBTC.amountWonEnergy = ZERO_BI
+    greenBTC.amountARTSubsidy = ZERO_BI
+    greenBTC.amountCARTSubsidy = ZERO_BI
     greenBTC.save()
   }
+
+  let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
+  let dataNFT = greenBTCContract.dataNFT(event.params.height)
 
   greenBTC.lastBlockHeight = event.block.number
   greenBTC.bought = greenBTC.bought.plus(ONE_BI)
   greenBTC.amountEnergy = greenBTC.amountEnergy.plus(event.params.ARTCount)
+
+  let rateSubsidy =  dataNFT.getRatioSubsidy()
+  if (rateSubsidy != 0) {
+    let valueSubsidy = event.params.ARTCount.times(BigInt.fromI32(rateSubsidy)).div(BigInt.fromI32(100))
+    if (event.params.greenType > 16) {              // ART
+      greenBTC.amountARTSubsidy = greenBTC.amountARTSubsidy.plus(valueSubsidy)
+    } else {                                        // CART
+      greenBTC.amountCARTSubsidy = greenBTC.amountCARTSubsidy.plus(valueSubsidy)
+    }
+  }
+
   greenBTC.save()
 
   let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ event.params.height.toString().padStart(8,'0'))
@@ -45,6 +61,7 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     greenBTCBlock.greenType = event.params.greenType
     greenBTCBlock.seed = ''
     greenBTCBlock.status = "Sold"                 // sold
+    greenBTCBlock.subsidy = rateSubsidy
     greenBTCBlock.save()
   } else {                                        // For event OpenBox first
     greenBTCBlock.lastBlockHeight = event.block.number
@@ -53,6 +70,7 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     greenBTCBlock.minter = event.params.minter
     greenBTCBlock.owner = event.params.minter
     greenBTCBlock.greenType = event.params.greenType
+    greenBTCBlock.subsidy = rateSubsidy
     greenBTCBlock.save()
   }
 
@@ -104,6 +122,7 @@ export function handleOpenBox(event: OpenBox): void {
     greenBTCBlock.greenType = 0
     greenBTCBlock.seed = ''
     greenBTCBlock.status = "Opened"              // opened
+    greenBTCBlock.subsidy = 0
     greenBTCBlock.save()
   } else {
     greenBTCBlock.lastBlockHeight = event.block.number
@@ -152,7 +171,7 @@ export function handleRevealBoxes(event: RevealBoxes): void {
     let dataNFT = greenBTCContract.dataNFT(revealList[index])
 
     greenBTCBlock.lastBlockHeight = event.block.number
-    greenBTCBlock.seed = dataNFT.value5.toHexString()                         // retrieve seed
+    greenBTCBlock.seed = dataNFT.value6.toHexString()                         // retrieve seed
     greenBTCBlock.status = wonList[index] ? "Lucky" : "Revealed"              
     greenBTCBlock.save() 
 

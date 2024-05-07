@@ -19,15 +19,15 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
-export const ADDRESS_NATIVE = '0x9c3c9283d3e44854697cd22d3faa240cfb032889'    // ********
-export const ADDRESS_BANK = '0x7ee6d2a14d6db71339a010d44793b27895b36d50'      // ********
-export const ADDRESS_ART   = '0xb0c9dd915f62d0a37792fd2ce497680e909d8c0f'     // ********
-export const ADDRESS_hART  = '0x0999afb673944a7b8e1ef8eb0a7c6ffdc0b43e31'     // ********
-export const ADDRESS_cART  = '0x0d7899f2d36344ed21829d4ebc49cc0d335b4a06'
-export const ADDRESS_REGISTRY     = '0x047eb5205251c5fc8a21ba8f8d46f57df62013c8'    // ********
-export const ADDRESS_ISSUANCE     = '0x95f56340889642a41b913c32d160d2863536e073'    // ********
-export const ADDRESS_AKRE         = '0x54e1c534f59343c56549c76d1bdccc8717129832'    // tAKRE
-export const ADDRESS_AREC_BADGE   = '0x5c653b445be2bdeb6f8f3cd099fc801865cab835'    // ********
+export const ADDRESS_NATIVE = '0x0ae690AAD8663aaB12a671A6A0d74242332de85f'    // ********
+export const ADDRESS_BANK = '0xf9aAcFf1B292F82b60662e47610C570ef58d3c70'      // ********
+export const ADDRESS_ART   = '0x615835Cc22064a17df5A3E8AE22F58e67bCcB778'     // ********
+export const ADDRESS_hART  = '0x78A2620C3fb96100Dc551Db657005eEeF270F0DF'     // ********
+export const ADDRESS_cART  = '0x78A2620C3fb96100Dc551Db657005eEeF270F0DF'
+export const ADDRESS_REGISTRY     = '0x908C77c31bA81C2FC0Ec15Ce53cFd65f9c4aEECc'    // ********
+export const ADDRESS_ISSUANCE     = '0x4fc1d9188610377eA22C577054Fe42627eE49459'    // ********
+export const ADDRESS_AKRE         = '0xd092e1f47d4e5d1C1A3958D7010005e8e9B48206'    // tAKRE
+export const ADDRESS_AREC_BADGE   = '0x8a459D94F30dB4FC5b6e8F1950d67287AF0Bc77C'    // ********
 
 export interface offsetActions {
   offsetEntity: Address;
