@@ -183,6 +183,8 @@ type GreenBTC @entity {
   won:                    BigInt!
   amountEnergy:           BigInt!
   amountWonEnergy:        BigInt!
+  amountARTSubsidy:       BigInt!
+  amountCARTSubsidy:      BigInt!
 }
 
 type GreenBTCBlock @entity {
@@ -201,6 +203,7 @@ type GreenBTCBlock @entity {
   greenType:            Int!
   seed:                 String!
   status:               String!
+  subsidy:              Int!
 }
 
 type GreenBTCUser @entity {
