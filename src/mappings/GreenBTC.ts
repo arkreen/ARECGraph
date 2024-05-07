@@ -1,6 +1,8 @@
 /* eslint-disable prefer-const */
 import { BigInt, Address, Bytes } from '@graphprotocol/graph-ts'
 import { GreenBitCoin, OpenBox, RevealBoxes, Transfer, GreenBTC as GreenBTCContract } from '../types/GreenBTC/GreenBTC'
+import { GreenBTCV1 as GreenBTCContractV1 } from '../types/GreenBTC/GreenBTCV1'
+
 
 import { GreenBTC, GreenBTCBlock, GreenBTCUser } from '../types/schema'
 import { ONE_BI, ZERO_BI, ADDRESS_ZERO } from './helpers'
@@ -26,13 +28,17 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
   }
 
   let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
-  let dataNFT = greenBTCContract.dataNFT(event.params.height)
+  let dataNFTResult = greenBTCContract.try_dataNFT(event.params.height)
+
+  let rateSubsidy = 0
+  if (!dataNFTResult.reverted) {
+    rateSubsidy =  dataNFTResult.value.getRatioSubsidy()
+  } 
 
   greenBTC.lastBlockHeight = event.block.number
   greenBTC.bought = greenBTC.bought.plus(ONE_BI)
   greenBTC.amountEnergy = greenBTC.amountEnergy.plus(event.params.ARTCount)
 
-  let rateSubsidy =  dataNFT.getRatioSubsidy()
   if (rateSubsidy != 0) {
     let valueSubsidy = event.params.ARTCount.times(BigInt.fromI32(rateSubsidy)).div(BigInt.fromI32(100))
     if (event.params.greenType > 16) {              // ART
@@ -167,18 +173,27 @@ export function handleRevealBoxes(event: RevealBoxes): void {
   for (let index = 0; index < revealList.length; index++) {
     let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ revealList[index].toString().padStart(8,'0'))!
 
+    let seed: string
     let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
-    let dataNFT = greenBTCContract.dataNFT(revealList[index])
+    let dataNFTResult = greenBTCContract.try_dataNFT(revealList[index])
 
+    if (!dataNFTResult.reverted) {
+      seed = dataNFTResult.value.value6.toHexString()
+    } else {
+      let greenBTCContractV1 = GreenBTCContractV1.bind(Address.fromString(ADDRESS_GREENTBTC))
+      let dataNFT = greenBTCContractV1.dataNFT(revealList[index])
+      seed = dataNFT.value5.toHexString()
+    }
+  
     greenBTCBlock.lastBlockHeight = event.block.number
-    greenBTCBlock.seed = dataNFT.value6.toHexString()                         // retrieve seed
+    greenBTCBlock.seed = seed
     greenBTCBlock.status = wonList[index] ? "Lucky" : "Revealed"              
     greenBTCBlock.save() 
 
     if (wonList[index]) {
       greenBTC.won = greenBTC.won.plus(ONE_BI)
       greenBTC.amountWonEnergy = greenBTC.amountWonEnergy.plus(greenBTCBlock.amountEnergy)
-  }
+    }
 
     let greenBTCUser = GreenBTCUser.load("GREENBTC_USER_" + greenBTCBlock.opener.toHexString())!
 

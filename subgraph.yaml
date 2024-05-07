@@ -99,6 +99,8 @@ dataSources:
       abis:
         - name: GreenBTC
           file: ./abis/GreenBTC.json
+        - name: GreenBTCV1
+          file: ./abis/GreenBTCV1.json
       eventHandlers:
         - event: GreenBitCoin(uint256,uint256,address,uint8)
           handler: handleGreenBitCoin
