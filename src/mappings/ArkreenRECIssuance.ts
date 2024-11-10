@@ -270,7 +270,7 @@ export function handleRECRequested(event: RECRequested): void {
 
   let amountAKREToPay = recData.amountREC.times(BigInt.fromString("100000000000"))
   if(event.block.number >= blockRateChange) {
-    amountAKREToPay = recData.amountREC.times(BigInt.fromString("10"))
+    amountAKREToPay = amountAKREToPay.times(BigInt.fromString("10"))
   }
 
   userARECOverview.amountARECNFTMinted = userARECOverview.amountARECNFTMinted.plus(recData.amountREC)
@@ -443,7 +443,7 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
 
   let amountAKREToPay = recData.amountREC.times(BigInt.fromString("100000000000"))
   if(event.block.number >= blockRateChange) {
-    amountAKREToPay = recData.amountREC.times(BigInt.fromString("10"))
+    amountAKREToPay = amountAKREToPay.times(BigInt.fromString("10"))
   }
 
   userARECOverview.amountARECNFTMinted = userARECOverview.amountARECNFTMinted.plus(recData.amountREC)
