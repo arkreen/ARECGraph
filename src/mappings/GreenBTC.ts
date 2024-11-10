@@ -7,6 +7,8 @@ import { GreenBTC, GreenBTCBlock, GreenBTCUser } from '../types/schema'
 import { ONE_BI, ZERO_BI, ADDRESS_ZERO } from './helpers'
 
 const ADDRESS_GREENTBTC = '0xdf51f3dcd849f116948a5b23760b1ca0b5425bde'
+const SUBSIDY_UPDATE_HEIGHT = 56415926
+// const SUBSIDY_UPDATE_READY = 56752488
 
 // event GreenBitCoin(uint256 height, uint256 ARTCount, address minter, uint8 greenType)
 export function handleGreenBitCoin(event: GreenBitCoin): void {
@@ -26,14 +28,17 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     greenBTC.save()
   }
 
-  let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
-  let dataNFTResult = greenBTCContract.try_dataNFT(event.params.height)
-
   let rateSubsidy = 0
-  if (!dataNFTResult.reverted) {
-    rateSubsidy =  dataNFTResult.value.getRatioSubsidy()
-  } 
+  if (event.block.number.ge(BigInt.fromI32(SUBSIDY_UPDATE_HEIGHT))) {
 
+    let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
+    let dataNFTResult = greenBTCContract.try_dataNFT(event.params.height)
+
+    if (!dataNFTResult.reverted) {
+      rateSubsidy =  dataNFTResult.value.getRatioSubsidy()
+    } 
+  }
+  
   greenBTC.lastBlockHeight = event.block.number
   greenBTC.bought = greenBTC.bought.plus(ONE_BI)
   greenBTC.amountEnergy = greenBTC.amountEnergy.plus(event.params.ARTCount)
@@ -43,7 +48,7 @@ export function handleGreenBitCoin(event: GreenBitCoin): void {
     if (event.params.greenType > 16) {              // ART
       greenBTC.amountARTSubsidy = greenBTC.amountARTSubsidy.plus(valueSubsidy)
     } else {                                        // CART
-      greenBTC.amountCARTSubsidy = greenBTC.amountCARTSubsidy.plus(valueSubsidy)
+     greenBTC.amountCARTSubsidy = greenBTC.amountCARTSubsidy.plus(valueSubsidy)
     }
   }
 
@@ -173,15 +178,21 @@ export function handleRevealBoxes(event: RevealBoxes): void {
     let greenBTCBlock = GreenBTCBlock.load("GREENBTC_BLOCK_"+ revealList[index].toString().padStart(8,'0'))!
 
     let seed: string
-    let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
-    let dataNFTResult = greenBTCContract.try_dataNFT(revealList[index])
-
-    if (!dataNFTResult.reverted) {
-      seed = dataNFTResult.value.value6.toHexString()
-    } else {
+    if (event.block.number.lt(BigInt.fromI32(SUBSIDY_UPDATE_HEIGHT))) {
       let greenBTCContractV1 = GreenBTCContractV1.bind(Address.fromString(ADDRESS_GREENTBTC))
       let dataNFT = greenBTCContractV1.dataNFT(revealList[index])
       seed = dataNFT.value5.toHexString()
+    } else {
+      let greenBTCContract = GreenBTCContract.bind(Address.fromString(ADDRESS_GREENTBTC))
+      let dataNFTResult = greenBTCContract.try_dataNFT(revealList[index])
+
+      if (!dataNFTResult.reverted) {
+        seed = dataNFTResult.value.value6.toHexString()
+      } else {
+        let greenBTCContractV1 = GreenBTCContractV1.bind(Address.fromString(ADDRESS_GREENTBTC))
+        let dataNFT = greenBTCContractV1.dataNFT(revealList[index])
+        seed = dataNFT.value5.toHexString()
+      }
     }
 
     greenBTCBlock.lastBlockHeight = event.block.number

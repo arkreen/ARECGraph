@@ -21,6 +21,7 @@ type ARECOverview @entity {
   amountARECOffset:           BigInt!
   amountARECOffsetClaimed:    BigInt!
   amountARECSolidied:         BigInt!
+  amountAKRE:                 BigInt!
   ARTList:                    [ARTOverview!]!
 }
 
@@ -68,6 +69,7 @@ type ARECSnapshort @entity {
   amountARECOffset:           BigInt!
   amountARECOffsetClaimed:    BigInt!
   amountARECSolidied:         BigInt!
+  amountAKRE:                 BigInt!
 }
 
 type UserARECOverview @entity {
@@ -91,6 +93,7 @@ type UserARECOverview @entity {
   amountARECOffset:           BigInt!
   amountARECOffsetClaimed:    BigInt!
   amountARECSolidied:         BigInt!
+  amountAKRE:                 BigInt!
 }
 
 type ARECNFT @entity {

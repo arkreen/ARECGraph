@@ -29,6 +29,8 @@ export const ADDRESS_ISSUANCE     = '0x954585adf9425f66a0a2fd8e10682eb7c4f1f1fd'
 export const ADDRESS_AKRE         = '0x21b101f5d61a66037634f7e1beb5a733d9987d57'    // tAKRE
 export const ADDRESS_AREC_BADGE   = '0x1e5132495cdaBac628aB9F5c306722e33f69aa24'
 
+export const blockRateChange = BigInt.fromU32(62503971)
+
 export interface offsetActions {
   offsetEntity: Address;
   issuerREC: Address;
@@ -70,6 +72,8 @@ export function checkUserARECOverview(id: string): UserARECOverview  {
     userARECOverview.amountARECOffset = ZERO_BI
     userARECOverview.amountARECOffsetClaimed = ZERO_BI
     userARECOverview.amountARECSolidied = ZERO_BI
+    userARECOverview.amountAKRE = ZERO_BI
+   
     // userARECOverview.arecNFTListCertified = []
     // userARECOverview.climateBadgeList = []
     userARECOverview.save()
@@ -107,6 +111,7 @@ export function updateARECSnapshort(blocktime: BigInt): void {
   arecSnapshort.amountARECOffset = arecOverview.amountARECOffset
   arecSnapshort.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed
   arecSnapshort.amountARECSolidied = arecOverview.amountARECSolidied
+  arecSnapshort.amountAKRE = arecOverview.amountAKRE
   arecSnapshort.save()
 
   arecOverview.dayStartTimestamp = dayStartTimestamp
@@ -262,7 +267,14 @@ export function handleRECRequested(event: RECRequested): void {
 
   let userARECOverview = checkUserARECOverview("USER_AREC_" + recData.minter.toHexString())
   userARECOverview.numARECNFTMinted = userARECOverview.numARECNFTMinted +1
+
+  let amountAKREToPay = recData.amountREC.times(BigInt.fromString("100000000000"))
+  if(event.block.number >= blockRateChange) {
+    amountAKREToPay = recData.amountREC.times(BigInt.fromString("10"))
+  }
+
   userARECOverview.amountARECNFTMinted = userARECOverview.amountARECNFTMinted.plus(recData.amountREC)
+  userARECOverview.amountAKRE = userARECOverview.amountAKRE.plus(amountAKREToPay)
   userARECOverview.save()
 
   artOverview.numNFTMinted = artOverview.numNFTMinted + 1
@@ -271,6 +283,7 @@ export function handleRECRequested(event: RECRequested): void {
 
   arecOverview.numARECNFTMinted = arecOverview.numARECNFTMinted + 1 
   arecOverview.amountARECNFTMinted = arecOverview.amountARECNFTMinted.plus(recData.amountREC)
+  arecOverview.amountAKRE = arecOverview.amountAKRE.plus(amountAKREToPay)
   arecOverview.save()
 }
 
@@ -364,6 +377,7 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
     arecOverview.amountARECOffset = ZERO_BI
     arecOverview.amountARECOffsetClaimed = ZERO_BI
     arecOverview.amountARECSolidied = ZERO_BI
+    arecOverview.amountAKRE = ZERO_BI
     arecOverview.ARTList = []
     arecOverview.save()
   }
@@ -426,7 +440,15 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
 
   let userARECOverview = checkUserARECOverview("USER_AREC_" + recData.minter.toHexString())
   userARECOverview.numARECNFTMinted = userARECOverview.numARECNFTMinted +1
+
+  let amountAKREToPay = recData.amountREC.times(BigInt.fromString("100000000000"))
+  if(event.block.number >= blockRateChange) {
+    amountAKREToPay = recData.amountREC.times(BigInt.fromString("10"))
+  }
+
   userARECOverview.amountARECNFTMinted = userARECOverview.amountARECNFTMinted.plus(recData.amountREC)
+  userARECOverview.amountAKRE = userARECOverview.amountAKRE.plus(amountAKREToPay)
+
   userARECOverview.save()
 
   artOverview.numNFTMinted = artOverview.numNFTMinted + 1
@@ -435,6 +457,8 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
 
   arecOverview.numARECNFTMinted = arecOverview.numARECNFTMinted +1 
   arecOverview.amountARECNFTMinted = arecOverview.amountARECNFTMinted.plus(recData.amountREC)
+  arecOverview.amountAKRE = arecOverview.amountAKRE.plus(amountAKREToPay)
+
   arecOverview.save()
 }
 
