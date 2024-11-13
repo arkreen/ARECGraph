@@ -28,7 +28,7 @@ For Polygon Amoy Testnet:
 
 For Polygon Mainnet:
 `npx graph deploy --product hosted-service lu-derik/arec-graph`
-`npx graph deploy --studio arec-graph`
+`npx graph deploy --studio arec-graph`   (*)
 `npx graph deploy --studio greenbtc`
 
 `npx graph deploy <subgraph-name> --debug-fork <subgraph-id> --ipfs http://localhost:5001 --node http://localhost:8020`

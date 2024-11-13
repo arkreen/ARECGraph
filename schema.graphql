@@ -70,6 +70,7 @@ type ARECSnapshort @entity {
   amountARECOffsetClaimed:    BigInt!
   amountARECSolidied:         BigInt!
   amountAKRE:                 BigInt!
+  dateTime:                   Int!
 }
 
 type UserARECOverview @entity {

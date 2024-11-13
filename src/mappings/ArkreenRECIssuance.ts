@@ -10,7 +10,7 @@ import { RedeemFinished, RECLiquidized, Transfer, RECRejected, RECCanceled, RECD
 import { ArkreenBadge, ArkreenBadge__offsetActionsResult, ArkreenBadge__getOffsetActionsResultValue0Struct } from '../types/ArkreenRECIssuance/ArkreenBadge'
 import { ArkreenRegistry } from '../types/ArkreenRECIssuance/ArkreenRegistry'
 
-import { fetchTokenSymbol, fetchTokenName, fetchTokenDecimals, fetchTokenTotalSupply } from './helpers'
+import { fetchTokenSymbol, fetchTokenName, fetchTokenDecimals, fetchTokenTotalSupply, fetchTokenBalance } from './helpers'
 
 export let ZERO_BI = BigInt.fromI32(0)
 export let ONE_BI = BigInt.fromI32(1)
@@ -19,16 +19,18 @@ export let ONE_BD = BigDecimal.fromString('1')
 export let BI_18 = BigInt.fromI32(18)
 
 export const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000'
-export const ADDRESS_NATIVE = '0x9c3c9283d3e44854697cd22d3faa240cfb032889'
-export const ADDRESS_BANK = '0x7ee6d2a14d6db71339a010d44793b27895b36d50'     
+export const ADDRESS_NATIVE = '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270'
+export const ADDRESS_BANK = '0xab65900A52f1DcB722CaB2e5342bB6b128630A28'     
 export const ADDRESS_ART   = '0x58e4d14ccddd1e993e6368a8c5eaa290c95cafdf' 
 export const ADDRESS_hART  = '0x93b3bb6c51a247a27253c33f0d0c2ff1d4343214' 
 export const ADDRESS_cART  = '0x0d7899f2d36344ed21829d4ebc49cc0d335b4a06'
 export const ADDRESS_REGISTRY     = '0xb17facaca106fb3d216923db6cabfc7c0517029d'
 export const ADDRESS_ISSUANCE     = '0x954585adf9425f66a0a2fd8e10682eb7c4f1f1fd'   
-export const ADDRESS_AKRE         = '0x21b101f5d61a66037634f7e1beb5a733d9987d57'    // tAKRE
+//export const ADDRESS_AKRE         = '0x21b101f5d61a66037634f7e1beb5a733d9987d57'    // tAKRE
+export const ADDRESS_AKRE         = '0xe9c21de62c5c5d0ceacce2762bf655afdceb7ab3'      // AKRE
 export const ADDRESS_AREC_BADGE   = '0x1e5132495cdaBac628aB9F5c306722e33f69aa24'
 
+export const blockMainLaunch = BigInt.fromU32(54037964)
 export const blockRateChange = BigInt.fromU32(62503971)
 
 export interface offsetActions {
@@ -112,6 +114,8 @@ export function updateARECSnapshort(blocktime: BigInt): void {
   arecSnapshort.amountARECOffsetClaimed = arecOverview.amountARECOffsetClaimed
   arecSnapshort.amountARECSolidied = arecOverview.amountARECSolidied
   arecSnapshort.amountAKRE = arecOverview.amountAKRE
+
+  arecSnapshort.dateTime = timestamp
   arecSnapshort.save()
 
   arecOverview.dayStartTimestamp = dayStartTimestamp
@@ -269,7 +273,10 @@ export function handleRECRequested(event: RECRequested): void {
   userARECOverview.numARECNFTMinted = userARECOverview.numARECNFTMinted +1
 
   let amountAKREToPay = recData.amountREC.times(BigInt.fromString("100000000000"))
-  if(event.block.number >= blockRateChange) {
+
+  if(event.block.number < blockMainLaunch) {
+    amountAKREToPay = amountAKREToPay.div(BigInt.fromString("10"))
+  }  else if(event.block.number >= blockRateChange) {
     amountAKREToPay = amountAKREToPay.times(BigInt.fromString("10"))
   }
 
@@ -285,6 +292,15 @@ export function handleRECRequested(event: RECRequested): void {
   arecOverview.amountARECNFTMinted = arecOverview.amountARECNFTMinted.plus(recData.amountREC)
   arecOverview.amountAKRE = arecOverview.amountAKRE.plus(amountAKREToPay)
   arecOverview.save()
+/*
+  let addressAKRE =  Address.fromString(ADDRESS_AKRE)
+  let addressAREC =  Address.fromString(ADDRESS_ISSUANCE)
+  let balanceAREC = fetchTokenBalance(addressAKRE, addressAREC)
+  if (arecOverview.amountAKRE != balanceAREC) {
+    log.warning('AKRE Balance not identical: {} {} {}', [event.transaction.hash.toHexString(),
+      arecOverview.amountAKRE.toHexString(), balanceAREC.toHexString()])
+  }
+*/
 }
 
 // event ESGBatchMinted(address owner, uint256 tokenId)
@@ -442,7 +458,10 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
   userARECOverview.numARECNFTMinted = userARECOverview.numARECNFTMinted +1
 
   let amountAKREToPay = recData.amountREC.times(BigInt.fromString("100000000000"))
-  if(event.block.number >= blockRateChange) {
+
+  if(event.block.number < blockMainLaunch) {
+    amountAKREToPay = amountAKREToPay.div(BigInt.fromString("10"))
+  }  else if(event.block.number >= blockRateChange) {
     amountAKREToPay = amountAKREToPay.times(BigInt.fromString("10"))
   }
 
@@ -458,8 +477,16 @@ export function handleESGBatchMinted(event: ESGBatchMinted): void {
   arecOverview.numARECNFTMinted = arecOverview.numARECNFTMinted +1 
   arecOverview.amountARECNFTMinted = arecOverview.amountARECNFTMinted.plus(recData.amountREC)
   arecOverview.amountAKRE = arecOverview.amountAKRE.plus(amountAKREToPay)
-
   arecOverview.save()
+/*
+  let addressAKRE =  Address.fromString(ADDRESS_AKRE)
+  let addressAREC =  Address.fromString(ADDRESS_ISSUANCE)
+  let balanceAREC = fetchTokenBalance(addressAKRE, addressAREC)
+  if (arecOverview.amountAKRE != balanceAREC) {
+    log.warning('AKRE Balance not identical: {} {} {}', [event.transaction.hash.toHexString(),
+      arecOverview.amountAKRE.toHexString(), balanceAREC.toHexString()])
+  }
+*/    
 }
 
 // event RECCertified(address,uint256)

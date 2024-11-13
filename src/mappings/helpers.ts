@@ -94,3 +94,9 @@ export function fetchTokenDecimals(tokenAddress: Address): BigInt {
   }
   return decimalValue
 }
+
+export function fetchTokenBalance(tokenAddress: Address, account: Address): BigInt {
+  let contract = ERC20.bind(tokenAddress)
+  let balance = contract.balanceOf(account)
+  return balance
+}
