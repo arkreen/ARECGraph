@@ -543,6 +543,7 @@ export function handleRedeemFinished(event: RedeemFinished): void {
 
   arecNFT.lastBlockHeight = event.block.number
   arecNFT.timeRedeemed = event.block.timestamp.toI32()
+  arecNFT.hashTxLiquidOrRedeem = event.transaction.hash
   arecNFT.amountRECRetired = arecNFT.amountREC
   arecNFT.status = recData.status
   arecNFT.save()
@@ -617,6 +618,8 @@ export function handleRECLiquidized(event: RECLiquidized): void {
 
   arecNFT.lastBlockHeight = event.block.number
   arecNFT.timeLiquidized = event.block.timestamp.toI32()
+  arecNFT.hashTxLiquidOrRedeem = event.transaction.hash
+
   arecNFT.status = recData.status
   arecNFT.save()
 

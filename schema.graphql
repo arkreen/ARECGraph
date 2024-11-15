@@ -101,6 +101,7 @@ type ARECNFT @entity {
   id:                         ID!
   lastBlockHeight:            BigInt! 
   hashTx:                     Bytes!
+  hashTxLiquidOrRedeem:       Bytes
   artInfo:                    ARTOverview!
   timeMinted:                 Int!
   timeCertified:              Int!
